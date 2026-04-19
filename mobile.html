@@ -1504,11 +1504,32 @@ body.mobile-build::before{content:none}
 .touch-btn.quest-yes{background:rgba(34,221,119,0.18);border-color:rgba(34,221,119,0.34)}
 .touch-btn.quest-no{background:rgba(255,255,255,0.10)}
 
+
+#dev-skip-btn{
+  position:fixed;
+  top:calc(env(safe-area-inset-top,0px) + 10px);
+  right:calc(env(safe-area-inset-right,0px) + 10px);
+  z-index:140;
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:58px;height:34px;padding:0 12px;
+  border-radius:999px;border:1px solid rgba(255,255,255,0.18);
+  background:rgba(8,12,24,0.72);color:#eef7fa;
+  font:700 11px/1 'Share Tech Mono',monospace;
+  letter-spacing:1.4px;text-transform:uppercase;
+  box-shadow:0 10px 24px rgba(0,0,0,0.22);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0.9;cursor:pointer;touch-action:manipulation;
+}
+#dev-skip-btn:active{transform:translateY(1px) scale(0.985)}
+#dev-skip-btn.hidden{display:none}
+
 </style>
 </head>
 <body>
 
 <canvas id="game-canvas"></canvas>
+
+<button id="dev-skip-btn" type="button" aria-label="Skip ahead for testing" title="Skip ahead for testing">Skip</button>
 
 <div id="overlay">
   <div id="overall-progress" class="hidden">
@@ -2289,6 +2310,127 @@ function skipToEndForTesting() {
   finishExperiment();
 }
 
+const devSkipBtn = document.getElementById('dev-skip-btn');
+
+function updateDevSkipButton() {
+  if (!devSkipBtn) return;
+  const shouldShow = !!ALLOW_TEST_SHORTCUTS;
+  devSkipBtn.classList.toggle('hidden', !shouldShow);
+}
+
+function completeConsentForTesting() {
+  Array.from(document.querySelectorAll('.consent-check')).forEach(ch => { ch.checked = true; });
+  syncConsentToggleAll();
+  consentData.viewedAt = consentData.viewedAt || new Date().toISOString();
+  consentData.completedAt = new Date().toISOString();
+  consentData.fullName = '';
+  consentData.date = '';
+  consentData.consentGiven = true;
+  consentData.items = readConsentStatements();
+}
+
+function populateSetupForTesting() {
+  const pidInput = document.getElementById('input-pid');
+  const sexInput = document.getElementById('input-sex');
+  const ageInput = document.getElementById('input-age');
+  const currentPid = pidInput ? pidInput.value.trim() : '';
+  if (pidInput && (!currentPid || !PID_PATTERN.test(currentPid) || isParticipantIdTaken(currentPid))) {
+    pidInput.value = buildFallbackParticipantId();
+  }
+  if (sexInput && !sexInput.value) sexInput.value = 'prefer_not_to_say';
+  if (ageInput && !ageInput.value.trim()) ageInput.value = '30';
+}
+
+function handleDevSkipClick() {
+  if (!ALLOW_TEST_SHORTCUTS) return;
+
+  if (['training', 'test'].includes(appState)) {
+    skipToEndForTesting();
+    return;
+  }
+
+  switch (currentScreenName) {
+    case 'pis':
+      if (!pisData.viewedAt) pisData.viewedAt = new Date().toISOString();
+      pisData.completedAt = new Date().toISOString();
+      prepareConsentScreen();
+      return;
+    case 'consent':
+      completeConsentForTesting();
+      proceedAfterConsent();
+      return;
+    case 'upload':
+      showScreen('setup');
+      return;
+    case 'setup':
+      populateSetupForTesting();
+      document.getElementById('btn-setup-next').click();
+      setTimeout(() => {
+        if (currentScreenName === 'awsBasic') skipAWSBasicForTesting();
+      }, 60);
+      return;
+    case 'awsBasic':
+      skipAWSBasicForTesting();
+      return;
+    case 'awsBasicResult':
+      if (awsBasicResult && awsBasicResult.didPass) {
+        showScreen('questPrep');
+      } else {
+        skipAWSBasicForTesting();
+      }
+      return;
+    case 'questPrep':
+      showScreen('questIntro');
+      return;
+    case 'questIntro':
+      skipQuestForTesting(true);
+      return;
+    case 'caps':
+      markQuestionnairesSkipped();
+      startSavingFlow();
+      return;
+    case 'final':
+      if (!capsData || !capsData.completedAt) markQuestionnairesSkipped();
+      startSavingFlow();
+      return;
+    case 'saving':
+      openDebriefScreen();
+      return;
+    case 'debrief':
+      debriefData.completedAt = new Date().toISOString();
+      showScreen('end');
+      return;
+    case 'end':
+      location.reload();
+      return;
+    case 'intro':
+    case 'message':
+    case 'trainProg':
+    case 'mission':
+      skipToEndForTesting();
+      return;
+    default:
+      break;
+  }
+
+  if (mainExperimentCompleted) {
+    if (!capsData || !capsData.completedAt) {
+      markQuestionnairesSkipped();
+      startSavingFlow();
+    } else if (currentScreenName !== 'debrief' && currentScreenName !== 'end') {
+      openDebriefScreen();
+    }
+    return;
+  }
+
+  skipToEndForTesting();
+}
+
+if (devSkipBtn) {
+  devSkipBtn.addEventListener('click', handleDevSkipClick);
+  updateDevSkipButton();
+}
+
 let mainExperimentCompleted = false;
 let finalScreenPrepared = false;
 
@@ -2400,7 +2542,10 @@ function updateOverallProgress(name) {
   overallProgressTextEl.textContent = `${state.label}: ${pct}%`;
 }
 
+let currentScreenName = 'pis';
+
 function showScreen(name) {
+  currentScreenName = name || null;
   Object.values(screenEls).forEach(s => s.classList.remove('active'));
   if (name) {
     screenEls[name].classList.add('active');
@@ -2409,6 +2554,7 @@ function showScreen(name) {
     ol.style.display = 'none';
   }
   updateOverallProgress(name);
+  updateDevSkipButton();
 }
 
 // ═══════════════════════════════════════════════════════════════════
