@@ -2249,6 +2249,7 @@ function skipToEndForTesting() {
 }
 
 let mainExperimentCompleted = false;
+let uploadStage = 'main'; // 'main' for first upload, 'questionnaire' for second
 let finalScreenPrepared = false;
 let sessionBaseName = null; // locked on first upload so both uploads share the same folder
 
@@ -3187,7 +3188,7 @@ document.getElementById('btn-caps-submit').addEventListener('click', () => {
   }
   capsData.completedAt = new Date().toISOString();
   if (mainExperimentCompleted) {
-    silentUploadBackground(); // Upload 2: full data with questionnaire, same folder
+    silentUploadBackground('questionnaire'); // Upload 2: full data with questionnaire, same folder
     openDebriefScreen();
   } else {
     showScreen('intro');
@@ -4712,7 +4713,7 @@ function finishExperiment(){
   prepareFinalScreen();
   updateFinalContinueButton();
   showScreen('final');
-  silentUploadBackground(); // Upload 1: main trial data, fires silently in background
+  silentUploadBackground('main'); // Upload 1: main trial data, fires silently in background
 }
 
 function openDebriefScreen(){
@@ -4901,6 +4902,7 @@ function buildRemoteUploadPayload(){
   return {
     schema_version: 1,
     export_type: 'prior_experiment_submission',
+    upload_stage: uploadStage,
     submitted_at: new Date().toISOString(),
     base_name: baseName,
     participant: {
@@ -5003,8 +5005,9 @@ async function uploadSessionPackageRemote(force=false){
 // Fires upload silently in background — no saving screen shown to participant.
 // Called twice: once after main experiment, once after questionnaire.
 // Both uploads share sessionBaseName so files land in the same Drive folder.
-function silentUploadBackground() {
+function silentUploadBackground(stage) {
   if (!remoteUploadConfigured()) return;
+  uploadStage = stage || 'main';
   remoteUploadState.started  = false;
   remoteUploadState.finished = false;
   remoteUploadState.success  = false;
