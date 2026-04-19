@@ -1468,7 +1468,7 @@ body.mobile-build::before{content:none}
   .btn,.btn-row .btn{width:100%;min-height:56px;font-size:18px}
   .doc-window{max-height:68vh;padding:10px}
   .doc-window-bar{padding:10px 12px}
-  #screen-intro{width:min(430px,94vw);padding-bottom:clamp(210px,52vw,240px)}
+  #screen-intro{width:min(430px,94vw);padding-bottom:clamp(240px,60vw,275px)}
   #screen-intro .instr-item{font-size:16px;padding:14px 16px}
   #screen-quest-intro .instr-item{font-size:17px !important;padding:14px 16px !important}
   #screen-quest-intro .tagline{font-size:clamp(22px,7vw,32px) !important}
@@ -1498,18 +1498,18 @@ body.mobile-build::before{content:none}
 }
 /* Bigger circles — anchored to left/right corners */
 .touch-btn{
-  width:clamp(178px,46vw,218px);height:clamp(178px,46vw,218px);min-height:178px;min-width:178px;
+  width:clamp(210px,54vw,255px);height:clamp(210px,54vw,255px);min-height:210px;min-width:210px;
   padding:14px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);
   background:rgba(255,255,255,0.12);color:#eef7fa;font-family:'Rajdhani',sans-serif;
-  font-weight:700;font-size:clamp(22px,5.5vw,27px);letter-spacing:1.1px;text-transform:uppercase;
+  font-weight:700;font-size:clamp(24px,6vw,30px);letter-spacing:1.1px;text-transform:uppercase;
   text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
   touch-action:manipulation;box-shadow:0 14px 32px rgba(0,0,0,0.32);
   flex-shrink:0;
 }
 .touch-main-buttons .touch-btn,
 .touch-quest-buttons .touch-btn{
-  width:clamp(178px,46vw,218px);height:clamp(178px,46vw,218px);min-width:178px;min-height:178px;
-  padding:14px;font-size:clamp(22px,5.5vw,27px);letter-spacing:1.1px;
+  width:clamp(210px,54vw,255px);height:clamp(210px,54vw,255px);min-width:210px;min-height:210px;
+  padding:14px;font-size:clamp(24px,6vw,30px);letter-spacing:1.1px;
   background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);
 }
 .touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
@@ -1519,13 +1519,13 @@ body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:
 @media (orientation: portrait){
   .touch-controls{padding:0 clamp(12px,3.5vw,24px) calc(env(safe-area-inset-bottom,0px) + 28px)}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(170px,44vw,210px);height:clamp(170px,44vw,210px);min-width:170px;min-height:170px;
+    width:clamp(200px,52vw,245px);height:clamp(200px,52vw,245px);min-width:200px;min-height:200px;
   }
 }
 @media (max-width: 390px){
   .touch-controls{padding:0 clamp(10px,3vw,18px) calc(env(safe-area-inset-bottom,0px) + 22px)}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(152px,41vw,184px);height:clamp(152px,41vw,184px);min-width:152px;min-height:152px;font-size:clamp(20px,5.2vw,24px)
+    width:clamp(176px,47vw,210px);height:clamp(176px,47vw,210px);min-width:176px;min-height:176px;font-size:clamp(22px,5.5vw,26px)
   }
 }
 
@@ -2316,6 +2316,13 @@ function skipQuestionnairesForTesting(goToIntro = true) {
 }
 
 function skipQuestForTesting(skipQuestionnairesToo = false) {
+  // ── BUG FIX: immediately clear questRunning so the touch-panel logic
+  //    doesn't show the quest Yes/No buttons alongside the main response
+  //    buttons when the dev skip jumps past an in-flight QUEST procedure.
+  //    Also set questAbortFlag so the async loop stops waiting and its
+  //    finally-block can release any remaining resources cleanly.
+  questRunning    = false;
+  questAbortFlag  = true;
   questResults = buildSkippedQuestResults();
   snrHigh = questResults.threshold_75;
   snrMedium = questResults.threshold_50;
