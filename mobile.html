@@ -2050,7 +2050,7 @@ const APP_VERSION = 'prior-quest-web-v4-embedded-audio';
 // index.html passes ?v=1 or ?v=2 to alternate which frequency is common/rare
 // across participants, ruling out low-vs-high frequency processing confounds.
 //
-//  V1 (default): LOW freq = common  → 1200 Hz common,  [1697,2018,2400,2856] rare
+//  V1 (default): LOW freq = common  → 1200 Hz common,  [1697,2018,2400,2853] rare
 //  V2:           HIGH freq = common → 2400 Hz common,  [1697,1427,1200,1009] rare
 const COUNTERBALANCE_VERSION = (function(){
   try {
@@ -2063,7 +2063,7 @@ const COUNTERBALANCE_VERSION = (function(){
   } catch(e) {}
   // Default / Version 1
   CFG.commonHz   = 1200;
-  CFG.uncommonHz = [1697, 2018, 2400, 2856];
+  CFG.uncommonHz = [1697, 2018, 2400, 2853];
   return 1;
 })();
 
@@ -2278,6 +2278,31 @@ function refreshIntroKeyLabels(){
   const rareEl = document.getElementById('intro-rare-key');
   if (commonEl) commonEl.textContent = kc;
   if (rareEl) rareEl.textContent = kr;
+
+  const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high frequency beep' : 'low frequency beep';
+  const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low frequency beep' : 'high frequency beep';
+  const commonButtonName = COUNTERBALANCE_VERSION === 2 ? 'HIGH<br>BEEP' : 'LOW<br>BEEP';
+  const rareButtonName = COUNTERBALANCE_VERSION === 2 ? 'LOW<br>BEEP' : 'HIGH<br>BEEP';
+  const commonDemoName = COUNTERBALANCE_VERSION === 2 ? 'HIGH FREQUENCY TONE' : 'LOW FREQUENCY TONE';
+  const rareDemoName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
+
+  const introTagline = document.querySelector('#screen-intro .tagline');
+  if (introTagline) introTagline.textContent = `Do you hear the ${commonToneName}, ${rareToneName}, or no beep?`;
+
+  const introItems = document.querySelectorAll('#screen-intro .instr-item');
+  if (introItems[0]) {
+    introItems[0].innerHTML = `<div class="instr-icon">📱</div><div>Tap <strong>${commonButtonName.replace('<br>',' ')}</strong> for the <strong>${commonToneName}</strong> and <strong>${rareButtonName.replace('<br>',' ')}</strong> for the <strong>${rareToneName}</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>`;
+  }
+
+  const demoCommon = document.getElementById('btn-demo-common');
+  const demoRare = document.getElementById('btn-demo-rare');
+  if (demoCommon) demoCommon.textContent = commonDemoName;
+  if (demoRare) demoRare.textContent = rareDemoName;
+
+  const touchCommon = document.getElementById('touch-btn-common');
+  const touchRare = document.getElementById('touch-btn-rare');
+  if (touchCommon) touchCommon.innerHTML = commonButtonName;
+  if (touchRare) touchRare.innerHTML = rareButtonName;
 }
 
 function isSkipKey(event) {
@@ -5123,6 +5148,7 @@ function buildRemoteSummaryRow(){
     uploaded_at: new Date().toISOString(),
     app_version: APP_VERSION,
     counterbalance_version: COUNTERBALANCE_VERSION,
+    common_hz: CFG.commonHz,
     session_run_id: sessionRunId,
     participant_id: PID || '',
     participant_age: participantAge || '',
@@ -5507,7 +5533,7 @@ function buildQuestionnaireSummaryCSV(){
 
 function buildSessionSummaryCSV(){
   const cols = [
-    'ParticipantID','ExportedAt','AppVersion','CounterbalanceVersion','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
+    'ParticipantID','ExportedAt','AppVersion','CounterbalanceVersion','CommonHz','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
     'PIS_ViewedAt','PIS_CompletedAt','Consent_ViewedAt','Consent_CompletedAt','ConsentDate','ConsentGiven',
     'AWSBasic_StartedAt','AWSBasic_CompletedAt','AWSBasic_DidPass','AWSBasic_SkippedForTesting','AWSBasic_TotalCorrect','AWSBasic_TotalTrials',
     'Threshold_ML','Threshold_75','Threshold_50','Threshold_25','QUEST_FitValid','Gamma_Fixed','FA_Rate_Observed',
@@ -5526,7 +5552,7 @@ function buildSessionSummaryCSV(){
     faRate_observed: questResults.faRate_observed
   } : {};
   const row = [
-    csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(COUNTERBALANCE_VERSION), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
+    csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(COUNTERBALANCE_VERSION), csvVal(CFG.commonHz), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
     csvVal(pisData ? pisData.viewedAt : ''), csvVal(pisData ? pisData.completedAt : ''), csvVal(consentData ? consentData.viewedAt : ''), csvVal(consentData ? consentData.completedAt : ''), csvVal(consentData ? consentData.consentDate : ''), csvVal(consentData ? consentData.consentGiven : ''),
     csvVal(awsBasicResult ? awsBasicResult.startedAt : ''), csvVal(awsBasicResult ? awsBasicResult.completedAt : ''), csvVal(awsBasicResult ? awsBasicResult.didPass : ''), csvVal(awsBasicResult ? awsBasicResult.skippedForTesting : ''), csvVal(awsBasicResult ? awsBasicResult.totalCorrect : ''), csvVal(awsBasicResult ? awsBasicResult.totalTrials : ''),
     csvVal(thresholds.threshold_ML ?? ''), csvVal(thresholds.threshold_75 ?? snrHigh ?? ''), csvVal(thresholds.threshold_50 ?? snrMedium ?? ''), csvVal(thresholds.threshold_25 ?? snrLow ?? ''), csvVal(thresholds.fit_valid ?? ''), csvVal(thresholds.gamma_fixed ?? ''), csvVal(thresholds.faRate_observed ?? ''),
@@ -5546,6 +5572,11 @@ function buildSessionManifest(){
   return {
     app: 'The PRIOR Game',
     version: APP_VERSION,
+    counterbalance: {
+      version: COUNTERBALANCE_VERSION,
+      commonHz: CFG.commonHz,
+      uncommonHz: CFG.uncommonHz.slice()
+    },
     exportedAt: new Date().toISOString(),
     participant: {
       id: PID,
@@ -5877,11 +5908,11 @@ primeEmbeddedAudioLoad();
     setHtml('#screen-setup .setup-requirement-title', 'Audio requirement');
     setHtml('#screen-setup .setup-requirement-text', 'Please wear <strong>headphones or earbuds</strong>. A headphone check will follow before the experiment begins.');
     const introItems = document.querySelectorAll('#screen-intro .instr-item');
-    if (introItems[0]) introItems[0].innerHTML = '<div class="instr-icon">📱</div><div>Tap <strong>LOW BEEP</strong> for the <strong>low frequency beep</strong> and <strong>HIGH BEEP</strong> for the <strong>high frequency beep</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>';
     if (introItems[1]) introItems[1].innerHTML = '<div class="instr-icon">📈</div><div>After you respond, <strong>keep holding the same button</strong> to rate your confidence.<br>Release sooner for <strong>lower confidence</strong> and later for <strong>higher confidence</strong>.</div>';
     const questItems = document.querySelectorAll('#screen-quest-intro .instr-item');
     if (questItems[0]) questItems[0].innerHTML = '<div class="instr-icon">📱</div><div>Tap <strong>YES</strong> if you heard the beep and <strong>NO</strong> if you did not.</div>';
     if (questItems[1]) questItems[1].innerHTML = '<div class="instr-icon">▶</div><div>Use the preview button below to hear the tone by itself before you begin.</div>';
+    refreshIntroKeyLabels();
   }
 
   function updateTouchPanels(){
