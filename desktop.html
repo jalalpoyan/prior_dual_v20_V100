@@ -4706,6 +4706,7 @@ function prepareFinalScreen(){
 }
 
 function finishExperiment(){
+  if(mainExperimentCompleted) return; // guard: prevent double-firing
   if(rafId) cancelAnimationFrame(rafId); stopAudio();
   mainExperimentCompleted = true;
   prepareFinalScreen();
@@ -4806,7 +4807,7 @@ document.getElementById('btn-end-new-session')?.addEventListener('click', ()=>lo
 // ═══════════════════════════════════════════════════════════════════
 const REMOTE_UPLOAD_CFG = Object.freeze({
   enabled: true,
-  endpoint: 'https://script.google.com/macros/s/AKfycbyW7J1ZKP5Eb4HWS8VHJfMb6n1WPL4fjXanTXUBvJruUQP0d3AXoYlhmLlEEwXu6_Nz2g/exec',
+  endpoint: 'https://script.google.com/macros/s/AKfycbyV3ytVlm7PEjQbPZELiaUl03-ZPIBgTrdHR-vHfHLaIOkDI_5ycx1lpuOBmpDO4F4-VA/exec',
   autoUploadOnDebrief: true,
   keepLocalZipDownload: true,
   timeoutMs: 90000,
