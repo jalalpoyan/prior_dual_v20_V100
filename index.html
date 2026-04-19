@@ -99,13 +99,27 @@
 
   const mode = detectMode();
 
+  // ── COUNTERBALANCING: alternate v=1 / v=2 each participant ──────
+  // localStorage persists on this device/browser, so each new visitor
+  // to index.html gets the opposite version from the last one.
+  // V1: low-freq = common (1200 Hz common, high-freq rare)
+  // V2: high-freq = common (2400 Hz common, low-freq rare)
+  var lastVersion = parseInt(localStorage.getItem('prior_last_version') || '0', 10);
+  var nextVersion = (lastVersion === 1) ? 2 : 1;
+  localStorage.setItem('prior_last_version', String(nextVersion));
+  var vParam = '?v=' + nextVersion;
+
+  // Update the manual-picker fallback links so they also carry the version
+  document.querySelector('a.primary').href  = 'desktop.html' + vParam;
+  document.querySelector('a.secondary').href = 'mobile.html' + vParam;
+
   if (mode === 'mobile') {
-    redirectTo('mobile.html', 'Phone or touch device detected. Opening the phone version…');
+    redirectTo('mobile.html' + vParam, 'Phone or touch device detected. Opening the phone version…');
     return;
   }
 
   if (mode === 'desktop') {
-    redirectTo('desktop.html', 'Computer or keyboard device detected. Opening the desktop version…');
+    redirectTo('desktop.html' + vParam, 'Computer or keyboard device detected. Opening the desktop version…');
     return;
   }
 
