@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>The PRIOR Game — Desktop</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://s3.amazonaws.com/mcd-headphone-check/v1.0/src/HeadphoneCheck.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/mcd-headphone-check/v1.0/src/HeadphoneCheckStyle.css">
 <style>
@@ -579,751 +580,7 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 }
 
 
-/* Compact HOW TO PLAY screen so everything fits without scrolling */
-#screen-intro{
-  width:min(1180px,96vw);
-  padding:8px 0 10px;
-  gap:8px;
-  justify-content:flex-start;
-}
-#screen-intro .logo{
-  font-size:clamp(28px,4.5vw,52px);
-  line-height:1;
-  margin-top:0;
-}
-#screen-intro .divider{margin-bottom:2px}
-#screen-intro .instr-list{gap:8px}
-#screen-intro .instr-item{
-  padding:10px 14px;
-  font-size:14px;
-  line-height:1.45;
-}
-#screen-intro .instr-icon{
-  margin-top:0;
-  width:22px;
-  text-align:center;
-}
-#screen-intro .card-row{
-  gap:10px;
-  flex-wrap:nowrap;
-}
-#screen-intro .intro-graphic-card{
-  padding:12px 14px;
-  min-width:0;
-}
-#screen-intro .intro-svg{
-  height:106px;
-}
-#screen-intro .section-title{
-  font-size:12px;
-  letter-spacing:5px;
-}
-#screen-intro .btn-row{
-  gap:10px;
-}
-#screen-intro .intro-sample-wrap{
-  margin-top:4px;
-  width:100%;
-  padding:16px 18px;
-  border-radius:14px;
-  border-left:4px solid rgba(254,209,0,0.55);
-  border:1px solid rgba(255,255,255,0.10);
-  background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(254,209,0,0.06));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
-}
-#screen-intro .intro-sample-plain{
-  width:100%;
-  text-align:center;
-  padding-top:2px;
-}
-#screen-intro .intro-sample-hint{
-  font-size:18px;
-  color:#f5fbff;
-  font-family:'Rajdhani',sans-serif;
-  font-weight:700;
-  line-height:1.45;
-  margin-bottom:12px;
-}
-#screen-intro .intro-sample-hint .sample-important{
-  display:inline-block;
-  margin-right:6px;
-  color:#FED100;
-}
-#screen-intro .intro-sample-buttons{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-}
-#screen-intro .intro-sample-buttons .btn{
-  min-width:150px;
-}
-#screen-intro .btn{
-  padding:10px 24px;
-  font-size:16px;
-}
-#screen-intro > .hint{
-  font-size:12px;
-  margin-top:0 !important;
-  margin-bottom:2px !important;
-}
-#screen-intro #btn-intro-start{
-  margin-top:0;
-}
-#screen-intro .key-badge{
-  padding:1px 8px;
-  font-size:14px;
-}
-
-
-#screen-quest-prep{width:min(820px,94vw);gap:18px}
-#screen-quest-prep .logo{font-size:clamp(34px,4.6vw,56px);text-align:center;line-height:1.05}
-#screen-quest-prep .instr-list{gap:14px}
-#screen-quest-prep .instr-item{
-  align-items:center;justify-content:center;gap:14px;
-  padding:18px 22px;font-size:clamp(24px,3.1vw,34px);line-height:1.2;
-  border-left:none;border:1px solid rgba(255,255,255,0.14);
-  background:linear-gradient(180deg,rgba(254,209,0,0.12),rgba(255,255,255,0.05));
-  color:#f7fbff;font-weight:700;border-radius:14px;
-}
-#screen-quest-prep .instr-icon{font-size:clamp(30px,4vw,42px);margin-top:0}
-
-.mission-brief-tag{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:8px 16px;border-radius:999px;
-  border:1px solid rgba(254,209,0,0.30);
-  background:rgba(254,209,0,0.12);
-  color:#ffe48a;font-family:'Share Tech Mono',monospace;
-  font-size:13px;letter-spacing:3px;text-transform:uppercase;
-  box-shadow:0 0 0 1px rgba(254,209,0,0.10) inset;
-}
-#screen-intro{width:min(900px,95vw);gap:16px}
-#screen-intro .logo{font-size:clamp(34px,4.8vw,56px);text-align:center;line-height:1.02;text-shadow:0 0 22px rgba(254,209,0,0.10)}
-#screen-intro .tagline{font-size:clamp(18px,2vw,24px);letter-spacing:2px;text-transform:none;color:#ffe48a;text-align:center;max-width:18ch;line-height:1.2}
-#screen-intro .instr-list{gap:10px}
-#screen-intro .instr-item{
-  padding:14px 16px;font-size:18px;line-height:1.45;
-  border-left:4px solid rgba(254,209,0,0.55);
-  background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(254,209,0,0.06));
-}
-#screen-intro .intro-sample-hint{font-size:22px;line-height:1.35;color:#f5fbff;font-weight:700;margin-bottom:12px}
-#screen-intro .intro-sample-buttons{justify-content:center}
-#screen-intro .intro-sample-buttons .btn{min-width:180px}
-#screen-intro #btn-intro-start{margin-top:4px;box-shadow:0 14px 28px rgba(0,0,0,0.28);font-size:18px;padding:12px 30px}
-
-
-/* Overall progress */
-#overall-progress{
-  position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:30;
-  width:min(760px,calc(100vw - 32px));display:flex;flex-direction:column;gap:5px;
-  padding:9px 16px 10px;border-radius:18px;
-  background:linear-gradient(180deg,rgba(18,24,37,0.98),rgba(18,24,37,0.92));
-  border:1px solid rgba(255,255,255,0.10);backdrop-filter:blur(10px);
-  box-shadow:0 14px 28px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.05);
-  pointer-events:none;
-}
-#overall-progress.hidden{display:none}
-.overall-progress-track{height:8px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden}
-#overall-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#00d4ff,#22dd77);transition:width .2s ease}
-#overall-progress-text{font-size:12px;font-family:'Share Tech Mono',monospace;color:#dbe9ef;text-align:center;letter-spacing:1px}
-
-/* Simplified session setup */
-#screen-setup{width:min(760px,92vw);gap:16px}
-#screen-setup .card{padding:22px 24px}
-#screen-setup .form-grid-compact{grid-template-columns:1fr;gap:18px}
-#screen-setup .form-label{font-size:16px;letter-spacing:2px;color:#e8f4f8}
-#screen-setup .form-input{font-size:21px;padding:14px 16px;color:#fff;background:rgba(255,255,255,0.09)}
-#screen-setup .form-input::placeholder{color:#a8bbc6}
-#screen-setup .setup-requirement-title{font-size:15px;color:#e8f4f8}
-#screen-setup .setup-requirement-text{font-size:18px;line-height:1.5;color:#f3fbff}
-
-/* Consent tick-all inside document area */
-.consent-toggle-inline{
-  position:absolute;left:82.74%;top:86.35%;transform:translate(-50%,-50%);z-index:4;
-  display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;
-  background:rgba(255,255,255,0.96);box-shadow:0 8px 20px rgba(0,0,0,0.08);
-  color:#153558;font-size:12px;font-family:'Share Tech Mono',monospace;white-space:nowrap
-}
-.consent-toggle-inline input{width:16px;height:16px;accent-color:#00d4ff;cursor:pointer}
-.consent-toggle-row{display:none}
-
-/* Larger headphone check text */
-.awsbasic-host #hc-container .hc-calibration-div,
-.awsbasic-host #hc-container .hc-trial-div{font-size:19px !important;line-height:1.65 !important}
-.awsbasic-host #hc-container p,
-.awsbasic-host #hc-container li,
-.awsbasic-host #hc-container td,
-.awsbasic-host #hc-container th,
-.awsbasic-host #hc-container label{font-size:19px !important;line-height:1.65 !important}
-.awsbasic-host #hc-container .hc-buttonset-vertical label{font-size:20px !important}
-.awsbasic-host #hc-container button,
-.awsbasic-host #hc-container input[type=button],
-.awsbasic-host #hc-container input[type=submit]{font-size:18px !important;padding:12px 24px !important}
-
-/* QUEST intro readability */
-#screen-quest-prep,#screen-quest-intro{width:min(900px,94vw)}
-#screen-quest-intro{
-  min-height:calc(100vh - 150px);
-  justify-content:flex-start;
-  align-self:center;
-  padding-top:4px;
-}
-#screen-quest-intro .logo{font-size:clamp(32px,4.4vw,50px);text-align:center;line-height:1.1;margin-top:0}
-#screen-quest-intro .tagline{font-size:18px;letter-spacing:1px;color:#e8f4f8;text-transform:none;text-align:center}
-#screen-quest-intro .instr-item{font-size:18px;line-height:1.6;padding:14px 18px}
-
-/* Main task intro simplified */
-#screen-intro{width:min(900px,95vw);padding:18px 0 12px;gap:16px}
-#screen-intro .logo{font-size:clamp(34px,4.8vw,56px);text-align:center;line-height:1.02;text-shadow:0 0 22px rgba(254,209,0,0.10)}
-#screen-intro .tagline{font-size:clamp(18px,2vw,24px);letter-spacing:2px;color:#ffe48a;text-transform:none;text-align:center;max-width:18ch;line-height:1.2}
-#screen-intro .instr-list{gap:10px}
-#screen-intro .instr-item{font-size:18px;line-height:1.45;padding:14px 16px;border-left:4px solid rgba(254,209,0,0.55);background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(254,209,0,0.06))}
-#screen-intro .intro-sample-hint{font-size:22px;line-height:1.35;color:#f5fbff;font-weight:700;margin-bottom:12px}
-#screen-intro .btn{font-size:18px}
-
-/* CAPS percentage marker */
-#screen-caps .q-progress-text{font-size:14px;color:#dbe9ef}
-
-@media (max-width: 700px){
-  .questionnaire-screen{width:min(96vw,96vw)}
-  .questionnaire-scroll{max-height:42vh}
-}
-
-
-.doc-paper-content{
-  padding:34px 42px 38px;
-  color:#1c2430;
-  font-family:'Inter',system-ui,sans-serif;
-}
-.doc-paper-header{
-  margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid rgba(18,31,46,0.12)
-}
-.doc-paper-title{
-  font-size:28px;line-height:1.15;font-weight:800;color:#12202f;letter-spacing:0.2px
-}
-.doc-paper-subtitle{
-  margin-top:10px;font-size:15px;line-height:1.55;color:#35485a;white-space:pre-line
-}
-.doc-paper-section + .doc-paper-section{
-  margin-top:18px;padding-top:18px;border-top:1px solid rgba(18,31,46,0.10)
-}
-.doc-paper-section h2{
-  margin:0 0 8px;font-size:18px;line-height:1.3;font-weight:800;color:#12202f
-}
-.doc-paper-section p{
-  margin:0;font-size:15px;line-height:1.7;color:#243444
-}
-.doc-paper-section p + p{margin-top:10px}
-.doc-paper-part{
-  margin-top:12px;padding:12px 14px;border-radius:12px;
-  background:rgba(20,30,45,0.04);border:1px solid rgba(18,31,46,0.08)
-}
-.doc-paper-part strong{
-  display:block;margin-bottom:6px;color:#12202f;font-size:15px
-}
-.doc-paper-contact{
-  margin-top:12px;padding:12px 14px;border-radius:12px;
-  background:rgba(20,30,45,0.04);border:1px solid rgba(18,31,46,0.08);
-  font-size:14px;line-height:1.65;color:#243444;white-space:pre-line
-}
-.consent-doc-note{
-  margin-top:10px;font-size:14px;line-height:1.6;color:#243444
-}
-.consent-doc-header{
-  margin-bottom:18px
-}
-.consent-doc-contact{
-  margin-top:10px;font-size:14px;line-height:1.55;color:#405060
-}
-.consent-statement-table{
-  width:100%;border-collapse:separate;border-spacing:0 10px
-}
-.consent-statement-table th{
-  text-align:left;font-size:13px;letter-spacing:0.8px;text-transform:uppercase;color:#516372;padding:0 12px 4px
-}
-.consent-statement-table td{
-  background:rgba(20,30,45,0.04);border:1px solid rgba(18,31,46,0.10);
-  padding:14px 16px;font-size:15px;line-height:1.55;color:#243444;vertical-align:top
-}
-.consent-statement-table td:last-child{
-  width:72px;text-align:center;vertical-align:middle
-}
-.consent-tick-cell{
-  display:flex;align-items:center;justify-content:center
-}
-.consent-tick-cell .consent-check{
-  width:20px;height:20px;margin:0;accent-color:#0f6bff
-}
-.doc-page-consent::after{display:none !important}
-
-
-
-
-/* v12 polish: quest preview separated, mission sample buttons differentiated */
-#screen-quest-intro .quest-preview-wrap,
-#screen-quest-intro .quest-start-wrap{
-  width:100%;
-  display:flex;
-  justify-content:center;
-}
-#screen-quest-intro .quest-preview-wrap{
-  margin-top:2px;
-}
-#screen-quest-intro .quest-preview-wrap .btn{
-  min-width:240px;
-  padding:12px 24px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.14);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(254,209,0,0.08)),
-    linear-gradient(135deg, rgba(18,26,38,0.92), rgba(27,38,56,0.92));
-  box-shadow:0 14px 28px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.05);
-}
-#screen-quest-intro .quest-start-wrap{
-  margin-top:2px;
-}
-#screen-quest-intro #btn-quest-start{
-  min-width:240px;
-}
-#screen-intro .intro-sample-buttons{
-  justify-content:center;
-  gap:14px;
-}
-#screen-intro #btn-demo-common,
-#screen-intro #btn-demo-rare{
-  min-width:220px;
-  padding:13px 20px;
-  border-radius:16px;
-  font-weight:800;
-  letter-spacing:0.5px;
-  box-shadow:0 14px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.05);
-}
-#screen-intro #btn-demo-common{
-  color:#fff7d0;
-  border:1px solid rgba(254,209,0,0.34);
-  background:
-    linear-gradient(180deg, rgba(254,209,0,0.18), rgba(254,209,0,0.08)),
-    linear-gradient(135deg, rgba(41,33,9,0.95), rgba(64,49,10,0.95));
-}
-#screen-intro #btn-demo-common:hover{
-  transform:translateY(-1px);
-  box-shadow:0 18px 32px rgba(0,0,0,0.22), 0 0 0 1px rgba(254,209,0,0.18) inset;
-}
-#screen-intro #btn-demo-rare{
-  color:#ffe7ea;
-  border:1px solid rgba(237,41,57,0.34);
-  background:
-    linear-gradient(180deg, rgba(237,41,57,0.18), rgba(237,41,57,0.08)),
-    linear-gradient(135deg, rgba(54,13,18,0.96), rgba(92,16,26,0.96));
-}
-#screen-intro #btn-demo-rare:hover{
-  transform:translateY(-1px);
-  box-shadow:0 18px 32px rgba(0,0,0,0.22), 0 0 0 1px rgba(237,41,57,0.18) inset;
-}
-/* v11 polish: centered QUEST intro, richer mission screen, prettier confidence visual */
-#screen-quest-intro{
-  width:min(940px,94vw) !important;
-  min-height:calc(100vh - 150px);
-  justify-content:flex-start !important;
-  gap:18px;
-  position:relative;
-  padding:8px 0 6px;
-}
-#screen-quest-intro .logo{
-  margin-top:2px !important;
-  align-self:center;
-  text-align:center;
-  font-size:clamp(34px,4.7vw,56px) !important;
-  letter-spacing:2px;
-  text-shadow:0 0 24px rgba(254,209,0,0.12);
-}
-#screen-quest-intro .quest-intro-center{
-  flex:1;
-  width:100%;
-  max-width:780px;
-  margin:0 auto;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:14px;
-}
-#screen-quest-intro .tagline{
-  font-size:clamp(28px,3vw,40px) !important;
-  line-height:1.16;
-  color:#fff4b0 !important;
-  max-width:16ch;
-  letter-spacing:.4px !important;
-  text-align:center;
-}
-#screen-quest-intro .divider{
-  width:min(240px,42%);
-  margin:0 auto 2px;
-}
-#screen-quest-intro .instr-list{
-  width:100%;
-  gap:14px;
-}
-#screen-quest-intro .instr-item{
-  font-size:22px !important;
-  line-height:1.45 !important;
-  padding:18px 22px !important;
-  border-left:4px solid rgba(254,209,0,0.55);
-  border-radius:18px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(254,209,0,0.08)),
-    linear-gradient(135deg, rgba(237,41,57,0.10), rgba(18,26,38,0.16));
-  box-shadow:
-    0 14px 30px rgba(0,0,0,0.18),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-}
-#screen-quest-intro .instr-icon{
-  width:28px;
-  font-size:24px;
-  text-align:center;
-  margin-top:1px;
-}
-#screen-quest-intro .btn-row{
-  justify-content:center;
-  gap:12px;
-  margin-top:2px;
-}
-
-#screen-intro{
-  position:relative;
-  overflow:hidden;
-  width:min(980px,95vw) !important;
-  padding:24px 28px 24px !important;
-  gap:18px !important;
-  border-radius:32px;
-  border:1px solid rgba(255,255,255,0.10);
-  background:
-    radial-gradient(circle at 18% 18%, rgba(254,209,0,0.17), transparent 34%),
-    radial-gradient(circle at 82% 14%, rgba(237,41,57,0.18), transparent 30%),
-    linear-gradient(180deg, rgba(20,28,42,0.95), rgba(14,20,31,0.96));
-  box-shadow:
-    0 22px 50px rgba(0,0,0,0.32),
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    inset 0 -1px 0 rgba(255,255,255,0.03);
-}
-#screen-intro::before,
-#screen-intro::after{
-  content:"";
-  position:absolute;
-  pointer-events:none;
-  z-index:0;
-}
-#screen-intro::before{
-  top:-110px; left:-70px;
-  width:300px; height:300px;
-  background:radial-gradient(circle, rgba(254,209,0,0.22), rgba(254,209,0,0.05) 42%, transparent 66%);
-  filter:blur(12px);
-}
-#screen-intro::after{
-  bottom:-130px; right:-80px;
-  width:330px; height:330px;
-  background:radial-gradient(circle, rgba(237,41,57,0.20), rgba(237,41,57,0.05) 40%, transparent 68%);
-  filter:blur(16px);
-}
-#screen-intro > *{
-  position:relative;
-  z-index:1;
-}
-#screen-intro .mission-brief-tag{
-  align-self:center;
-  padding:10px 18px;
-  border-radius:999px;
-  background:linear-gradient(135deg, rgba(254,209,0,0.18), rgba(237,41,57,0.12));
-  border:1px solid rgba(254,209,0,0.26);
-  color:#ffe9a8;
-  letter-spacing:3.2px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
-}
-#screen-intro .logo{
-  margin-top:2px;
-  text-shadow:0 0 28px rgba(254,209,0,0.16), 0 8px 24px rgba(0,0,0,0.22) !important;
-}
-#screen-intro .tagline{
-  max-width:23ch !important;
-  color:#fff0b8 !important;
-}
-#screen-intro .instr-list{
-  width:100%;
-  gap:12px !important;
-}
-#screen-intro .instr-item{
-  padding:16px 18px !important;
-  border-left:4px solid rgba(254,209,0,0.56) !important;
-  border-radius:18px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
-    linear-gradient(135deg, rgba(254,209,0,0.08), rgba(237,41,57,0.07));
-  box-shadow:
-    0 14px 30px rgba(0,0,0,0.20),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-}
-#screen-intro .instr-item strong{
-  color:#ffffff;
-}
-#screen-intro .key-badge{
-  border:1px solid rgba(255,255,255,0.14);
-  box-shadow:0 8px 18px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.06);
-}
-#screen-intro .intro-sample-wrap{
-  padding:18px 20px;
-  border-radius:20px;
-  border-left:4px solid rgba(254,209,0,0.56);
-  border:1px solid rgba(255,255,255,0.10);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
-    linear-gradient(135deg, rgba(254,209,0,0.10), rgba(18,26,38,0.14));
-  box-shadow:
-    0 14px 30px rgba(0,0,0,0.20),
-    inset 0 1px 0 rgba(255,255,255,0.05);
-}
-#screen-intro .intro-sample-hint{
-  text-align:center;
-  text-shadow:0 1px 0 rgba(0,0,0,0.2);
-}
-#screen-intro .intro-sample-buttons{
-  justify-content:center;
-  gap:12px;
-}
-#screen-intro #btn-intro-start{
-  align-self:center;
-  min-width:220px;
-  box-shadow:0 18px 34px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
-}
-
-
-/* v13 main mission-screen polish */
-#screen-intro{
-  width:min(1060px,95vw) !important;
-  gap:18px !important;
-  padding:10px 0 18px !important;
-  position:relative;
-  overflow:visible;
-}
-#screen-intro::before{
-  content:"";
-  position:absolute;
-  inset:-20px -24px -16px;
-  border-radius:34px;
-  background:
-    radial-gradient(1200px 320px at 50% -8%, rgba(254,209,0,0.14), transparent 52%),
-    radial-gradient(620px 260px at 12% 10%, rgba(0,212,255,0.10), transparent 55%),
-    radial-gradient(620px 260px at 88% 88%, rgba(237,41,57,0.10), transparent 55%),
-    linear-gradient(180deg, rgba(17,23,35,0.93), rgba(13,18,29,0.96));
-  border:1px solid rgba(255,255,255,0.09);
-  box-shadow:
-    0 26px 60px rgba(0,0,0,0.36),
-    inset 0 1px 0 rgba(255,255,255,0.06),
-    inset 0 0 0 1px rgba(254,209,0,0.04);
-  z-index:0;
-  pointer-events:none;
-}
-#screen-intro > *{position:relative;z-index:1}
-#screen-intro .mission-brief-tag{
-  align-self:center;
-  padding:10px 18px;
-  border-radius:999px;
-  border:1px solid rgba(254,209,0,0.34);
-  background:linear-gradient(180deg, rgba(254,209,0,0.18), rgba(254,209,0,0.08));
-  color:#fff1b8;
-  box-shadow:0 8px 18px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.10);
-}
-#screen-intro .logo{
-  font-size:clamp(34px,4.8vw,56px) !important;
-  line-height:0.98 !important;
-  text-align:center;
-  letter-spacing:1px;
-  color:#fff9ea;
-  text-shadow:0 0 24px rgba(254,209,0,0.18), 0 10px 26px rgba(0,0,0,0.26);
-}
-#screen-intro .tagline{
-  width:100%;
-  max-width:860px !important;
-  font-size:clamp(18px,2vw,24px) !important;
-  line-height:1.34 !important;
-  color:#ffe48a !important;
-  text-align:center;
-  letter-spacing:0.3px !important;
-  margin:0 auto;
-}
-#screen-intro .divider{
-  width:120px;
-  height:4px;
-  border-radius:999px;
-  background:linear-gradient(90deg, rgba(254,209,0,0.15), rgba(254,209,0,0.9), rgba(237,41,57,0.22));
-  box-shadow:0 0 18px rgba(254,209,0,0.16);
-}
-#screen-intro .instr-list{
-  width:100%;
-  gap:14px !important;
-}
-#screen-intro .instr-item,
-#screen-intro .intro-sample-wrap{
-  position:relative;
-  overflow:hidden;
-}
-#screen-intro .instr-item{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  align-items:flex-start;
-  gap:16px;
-  padding:18px 22px !important;
-  font-size:18px !important;
-  line-height:1.45 !important;
-  color:#eef7fb;
-  border:none !important;
-  border-radius:24px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
-    linear-gradient(135deg, rgba(22,30,44,0.95), rgba(12,18,30,0.95));
-  box-shadow:
-    0 16px 36px rgba(0,0,0,0.26),
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    inset 0 0 0 1px rgba(255,255,255,0.05);
-}
-#screen-intro .instr-item::before{
-  content:"";
-  position:absolute;
-  left:0; top:0; bottom:0;
-  width:6px;
-  border-radius:12px;
-}
-#screen-intro .instr-item:nth-child(1)::before{
-  background:linear-gradient(180deg, #FED100, #ffb400);
-  box-shadow:0 0 18px rgba(254,209,0,0.28);
-}
-#screen-intro .instr-item:nth-child(2)::before{
-  background:linear-gradient(180deg, #00d4ff, #0ca7ff);
-  box-shadow:0 0 18px rgba(0,212,255,0.22);
-}
-#screen-intro .instr-item::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(520px 140px at 100% 0%, rgba(255,255,255,0.08), transparent 60%);
-  pointer-events:none;
-}
-#screen-intro .instr-item .instr-icon{
-  width:50px;
-  height:50px;
-  min-width:50px;
-  border-radius:16px;
-  display:grid;
-  place-items:center;
-  font-size:24px;
-  margin-top:1px;
-  box-shadow:0 10px 24px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08);
-}
-#screen-intro .instr-item:nth-child(1) .instr-icon{
-  background:linear-gradient(180deg, rgba(254,209,0,0.20), rgba(254,209,0,0.08));
-  border:1px solid rgba(254,209,0,0.26);
-}
-#screen-intro .instr-item:nth-child(2) .instr-icon{
-  background:linear-gradient(180deg, rgba(0,212,255,0.18), rgba(0,212,255,0.08));
-  border:1px solid rgba(0,212,255,0.24);
-}
-#screen-intro .instr-item strong{color:#ffffff}
-#screen-intro .key-badge{
-  padding:2px 10px !important;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.14);
-  background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-  color:#fff7cf;
-  box-shadow:0 6px 14px rgba(0,0,0,0.16);
-}
-#screen-intro .intro-sample-plain{
-  width:100%;
-  padding-top:2px;
-}
-#screen-intro .intro-sample-wrap{
-  width:100%;
-  padding:22px 22px 24px;
-  border-radius:24px;
-  border:1px solid rgba(255,255,255,0.08);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
-    linear-gradient(135deg, rgba(23,28,39,0.96), rgba(16,20,30,0.96));
-  box-shadow:
-    0 18px 36px rgba(0,0,0,0.26),
-    inset 0 1px 0 rgba(255,255,255,0.05),
-    inset 0 0 0 1px rgba(254,209,0,0.04);
-}
-#screen-intro .intro-sample-wrap::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(400px 130px at 0% 0%, rgba(254,209,0,0.10), transparent 65%),
-    radial-gradient(360px 120px at 100% 100%, rgba(237,41,57,0.09), transparent 65%);
-  pointer-events:none;
-}
-#screen-intro .intro-sample-hint{
-  position:relative;
-  font-size:22px !important;
-  line-height:1.35 !important;
-  color:#f7fbff !important;
-  font-weight:700;
-  text-align:center;
-  margin-bottom:16px !important;
-}
-#screen-intro .intro-sample-buttons{
-  position:relative;
-  display:grid;
-  grid-template-columns:repeat(2,minmax(220px,1fr));
-  gap:14px;
-  width:100%;
-  justify-content:center;
-}
-#screen-intro #btn-demo-common,
-#screen-intro #btn-demo-rare{
-  min-width:0 !important;
-  width:100%;
-  padding:15px 18px !important;
-  border-radius:18px !important;
-  font-size:17px !important;
-  font-weight:800;
-  letter-spacing:0.7px;
-  position:relative;
-  overflow:hidden;
-}
-#screen-intro #btn-demo-common::before,
-#screen-intro #btn-demo-rare::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg, rgba(255,255,255,0.14), transparent 45%);
-  pointer-events:none;
-}
-#screen-intro #btn-intro-start{
-  margin-top:4px !important;
-  min-width:290px;
-  padding:15px 34px !important;
-  border-radius:18px;
-  font-size:18px !important;
-  font-weight:800;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  box-shadow:0 20px 38px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.06) inset;
-}
-#screen-intro #btn-intro-start:hover{
-  transform:translateY(-1px) scale(1.01);
-}
-@media (max-width: 760px){
-  #screen-intro{width:min(96vw,720px) !important}
-  #screen-intro::before{inset:-12px -10px -10px}
-  #screen-intro .instr-item{padding:16px 16px !important; gap:12px}
-  #screen-intro .instr-item .instr-icon{width:44px;height:44px;min-width:44px;font-size:21px}
-  #screen-intro .intro-sample-wrap{padding:18px 16px 20px}
-  #screen-intro .intro-sample-buttons{grid-template-columns:1fr}
-  #screen-intro #btn-intro-start{min-width:min(100%,320px)}
-}
-
-
-
-/* ===== Calmer main mission screen (v15) ===== */
+/* ── Mission instruction screen ── */
 #screen-intro{
   width:min(760px,92vw) !important;
   gap:12px !important;
@@ -1709,37 +966,6 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
     </div>
   </div>
 
-  <!-- ═══ PDI INFO SCREEN ═══ -->
-  <div id="screen-pdi-info" class="screen questionnaire-screen" style="display:none">
-    <div class="logo" style="font-size:32px">UNUSED SCREEN</div>
-    <div class="tagline" style="letter-spacing:3px;color:#99b"></div>
-    <div class="divider"></div>
-    <div class="questionnaire-card questionnaire-intro">
-      
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" id="btn-pdiinfo-back">← Back</button>
-      <button class="btn btn-primary" id="btn-pdiinfo-next">Continue →</button>
-    </div>
-  </div>
-
-  <!-- ═══ UNUSED SCREEN SCREEN ═══ -->
-  <div id="screen-pdi" class="screen questionnaire-screen" style="display:none">
-    <div class="logo" style="font-size:32px">UNUSED SCREEN</div>
-    <div class="tagline" style="letter-spacing:3px;color:#99b"></div>
-    <div class="divider"></div>
-    <div class="questionnaire-card questionnaire-progress">
-      <div class="q-progress-text" id="pdi-progress-text"></div>
-      <div class="q-progress-track"><div class="q-progress-fill" id="pdi-progress-fill"></div></div>
-    </div>
-    <div class="questionnaire-card questionnaire-scroll" id="pdi-questions-container"></div>
-    <div class="error-msg" id="pdi-error"></div>
-    <div class="btn-row">
-      <button class="btn btn-secondary" id="btn-pdi-prev">Previous</button>
-      <button class="btn btn-primary" id="btn-pdi-next">Next →</button>
-      <button class="btn btn-primary" id="btn-pdi-submit" style="display:none">Continue to task →</button>
-    </div>
-  </div>
 
   <!-- ═══ INTRO SCREEN ═══ -->
   <div id="screen-intro" class="screen">
@@ -1937,7 +1163,7 @@ const CFG = {
   itiSec:            0.40,
   feedbackSec:       0.60,
   postRespWindowSec: 2.00,
-  confMaxSec:        0.65,
+  confMaxSec:        1.00,
   trainMinTrials:    40,
   trainMaxTrials:    120,
   trainAccThresh:    0.80,
@@ -2091,14 +1317,10 @@ const CAPS_QUESTIONS = [
   "Do you ever see things that other people cannot?",
   "Do you ever hear sounds or music that people near you don’t hear?"
 ];
-const PDI_QUESTIONS = [];
 const CAPS_PER_PAGE = 4;
-const PDI_PER_PAGE = 4;
 
 let capsPage = 0;
-let pdiPage = 0;
 let capsData = null;
-let pdiData = null;
 
 function makeBlankCapsItem(question){
   return { question, yes_no:'', distress:'', distracting:'', frequency:'' };
@@ -2114,16 +1336,12 @@ function makeBlankCapsData(skipped=false){
 }
 function resetQuestionnaireData(){
   capsPage = 0;
-  pdiPage = 0;
   capsData = makeBlankCapsData(false);
-  pdiData = null;
 }
 function markQuestionnairesSkipped(){
   const now = new Date().toISOString();
   capsPage = 0;
-  pdiPage = 0;
   capsData = makeBlankCapsData(true);
-  pdiData = null;
   capsData.participantID = PID || '';
   capsData.startedAt = now;
   capsData.completedAt = now;
@@ -2343,8 +1561,6 @@ const screenEls = {
   questPrep:    document.getElementById('screen-quest-prep'),
   questIntro:   document.getElementById('screen-quest-intro'),
   caps:         document.getElementById('screen-caps'),
-  pdiInfo:      document.getElementById('screen-pdi-info'),
-  pdi:          document.getElementById('screen-pdi'),
   intro:        document.getElementById('screen-intro'),
   message:      document.getElementById('screen-message'),
   trainProg:    document.getElementById('screen-train-prog'),
@@ -2651,11 +1867,6 @@ document.getElementById('btn-setup-next').addEventListener('click', () => {
   KEY_RARE   = 'e';
   refreshIntroKeyLabels();
 
-  if (pdiData) {
-    pdiData.participantID = PID || '';
-    pdiData.demographics.sex = participantSex || '';
-    pdiData.demographics.age = participantAge || '';
-  }
   if (capsData) capsData.participantID = PID || '';
 
   launchAWSBasic();
@@ -2983,7 +2194,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  if ((screenEls.caps.classList.contains('active') || screenEls.pdiInfo.classList.contains('active') || screenEls.pdi.classList.contains('active')) && isSkipKey(e)) {
+  if (screenEls.caps.classList.contains('active') && isSkipKey(e)) {
     skipQuestionnairesForTesting(true);
     return;
   }
@@ -3033,11 +2244,6 @@ function toggleCapsRatings(index, show){
   setYnPillState(`caps_${index}_yn`);
 }
 
-function togglePdiScales(index, show){
-  const el = document.getElementById(`pdi_scales_${index}`);
-  if (el) el.style.display = show ? 'block' : 'none';
-  setYnPillState(`pdi_${index}_yn`);
-}
 
 function showCapsScreen(){
   if (!capsData) resetQuestionnaireData();
@@ -3127,91 +2333,6 @@ function validateCapsPage(){
   return true;
 }
 
-function showPdiInfoScreen(){
-  showScreen('intro');
-}
-
-function beginPdiQuestions(){
-  showScreen('intro');
-}
-
-function renderPdiPage(){
-  const totalPages = Math.ceil(PDI_QUESTIONS.length / PDI_PER_PAGE);
-  pdiPage = Math.max(0, Math.min(pdiPage, totalPages - 1));
-  const start = pdiPage * PDI_PER_PAGE;
-  const end = Math.min(start + PDI_PER_PAGE, PDI_QUESTIONS.length);
-  const container = document.getElementById('pdi-questions-container');
-  container.innerHTML = '';
-
-  for (let i = start; i < end; i++) {
-    const item = pdiData.items[i];
-    const block = document.createElement('div');
-    block.className = 'q-block';
-    block.innerHTML = `
-      <div class="q-question"><span class="q-num">${i+1}.</span>${item.question}</div>
-      <div class="q-yn-row">
-        <label class="q-yn-pill" data-yn-name="pdi_${i}_yn"><input type="radio" name="pdi_${i}_yn" value="yes" ${item.response==='yes'?'checked':''} onchange="togglePdiScales(${i}, true)"><span>YES</span></label>
-        <label class="q-yn-pill" data-yn-name="pdi_${i}_yn"><input type="radio" name="pdi_${i}_yn" value="no" ${item.response==='no'?'checked':''} onchange="togglePdiScales(${i}, false)"><span>NO</span></label>
-      </div>
-      <div class="q-scales" id="pdi_scales_${i}" style="display:${item.response==='yes'?'block':'none'}">
-        <div class="q-scale-group">
-          <div class="q-scale-label">How distressing is this belief or experience?</div>
-          <div class="q-likert">${renderLikertOptions(`pdi_${i}_distress`, item.distress)}</div>
-          <div class="q-scale-ends"><span>Not at all distressing</span><span>Very distressing</span></div>
-        </div>
-        <div class="q-scale-group">
-          <div class="q-scale-label">How often do you think about it?</div>
-          <div class="q-likert">${renderLikertOptions(`pdi_${i}_frequency`, item.frequency)}</div>
-          <div class="q-scale-ends"><span>Hardly ever</span><span>All the time</span></div>
-        </div>
-        <div class="q-scale-group">
-          <div class="q-scale-label">How much do you believe it is true?</div>
-          <div class="q-likert">${renderLikertOptions(`pdi_${i}_conviction`, item.conviction)}</div>
-          <div class="q-scale-ends"><span>Don't believe it's true</span><span>Absolutely true</span></div>
-        </div>
-      </div>
-    `;
-    container.appendChild(block);
-    setYnPillState(`pdi_${i}_yn`);
-  }
-
-  document.getElementById('pdi-progress-text').textContent = `Questions ${start+1}-${end} of ${PDI_QUESTIONS.length}`;
-  document.getElementById('pdi-progress-fill').style.width = `${((pdiPage+1)/totalPages)*100}%`;
-  document.getElementById('btn-pdi-prev').style.display = pdiPage > 0 ? 'inline-flex' : 'none';
-  document.getElementById('btn-pdi-next').style.display = pdiPage < totalPages - 1 ? 'inline-flex' : 'none';
-  document.getElementById('btn-pdi-submit').style.display = pdiPage === totalPages - 1 ? 'inline-flex' : 'none';
-  document.getElementById('pdi-error').textContent = '';
-}
-
-function savePdiPage(){
-  const start = pdiPage * PDI_PER_PAGE;
-  const end = Math.min(start + PDI_PER_PAGE, PDI_QUESTIONS.length);
-  for (let i = start; i < end; i++) {
-    const response = document.querySelector(`input[name="pdi_${i}_yn"]:checked`)?.value || '';
-    pdiData.items[i].response = response;
-    if (response === 'yes') {
-      pdiData.items[i].distress = document.querySelector(`input[name="pdi_${i}_distress"]:checked`)?.value || '';
-      pdiData.items[i].frequency = document.querySelector(`input[name="pdi_${i}_frequency"]:checked`)?.value || '';
-      pdiData.items[i].conviction = document.querySelector(`input[name="pdi_${i}_conviction"]:checked`)?.value || '';
-    } else {
-      pdiData.items[i].distress = '';
-      pdiData.items[i].frequency = '';
-      pdiData.items[i].conviction = '';
-    }
-  }
-}
-
-function validatePdiPage(){
-  savePdiPage();
-  const start = pdiPage * PDI_PER_PAGE;
-  const end = Math.min(start + PDI_PER_PAGE, PDI_QUESTIONS.length);
-  for (let i = start; i < end; i++) {
-    const item = pdiData.items[i];
-    if (!item.response) return false;
-    if (item.response === 'yes' && (!item.distress || !item.frequency || !item.conviction)) return false;
-  }
-  return true;
-}
 
 document.getElementById('btn-caps-prev').addEventListener('click', () => {
   saveCapsPage();
@@ -3240,34 +2361,6 @@ document.getElementById('btn-caps-submit').addEventListener('click', () => {
   }
 });
 
-document.getElementById('btn-pdiinfo-back').addEventListener('click', () => {
-  capsPage = Math.ceil(CAPS_QUESTIONS.length / CAPS_PER_PAGE) - 1;
-  renderCapsPage();
-  showScreen('caps');
-});
-document.getElementById('btn-pdiinfo-next').addEventListener('click', beginPdiQuestions);
-
-document.getElementById('btn-pdi-prev').addEventListener('click', () => {
-  savePdiPage();
-  pdiPage = Math.max(0, pdiPage - 1);
-  renderPdiPage();
-});
-document.getElementById('btn-pdi-next').addEventListener('click', () => {
-  if (!validatePdiPage()) {
-    document.getElementById('pdi-error').textContent = 'Please answer each YES/NO item and complete all ratings for YES responses.';
-    return;
-  }
-  pdiPage += 1;
-  renderPdiPage();
-});
-document.getElementById('btn-pdi-submit').addEventListener('click', () => {
-  if (!validatePdiPage()) {
-    document.getElementById('pdi-error').textContent = 'Please answer each YES/NO item and complete all ratings for YES responses.';
-    return;
-  }
-  pdiData.completedAt = new Date().toISOString();
-  showScreen('intro');
-});
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -5190,9 +4283,6 @@ function capsYesCount(){
   return capsData && Array.isArray(capsData.items) ? capsData.items.filter(item => item.yes_no === 'YES').length : 0;
 }
 
-function pdiYesCount(){
-  return pdiData && Array.isArray(pdiData.items) ? pdiData.items.filter(item => item.response === 'yes').length : 0;
-}
 
 function buildCapsCSV(){
   const cols = ['ParticipantID','StartedAt','CompletedAt','SkippedForTesting','Item','Question','YesNo','Distress','Distracting','Frequency'];
@@ -5207,19 +4297,6 @@ function buildCapsCSV(){
   return rows.join('\n');
 }
 
-function buildPdiCSV(){
-  const cols = ['ParticipantID','Sex','Age','StartedAt','CompletedAt','SkippedForTesting','Item','Question','Response','Distress','Frequency','Conviction'];
-  const rows = [cols.join(',')];
-  const items = pdiData && Array.isArray(pdiData.items) ? pdiData.items : [];
-  items.forEach((item, idx) => {
-    rows.push([
-      csvVal(PID), csvVal(pdiData && pdiData.demographics ? pdiData.demographics.sex : ''), csvVal(pdiData && pdiData.demographics ? pdiData.demographics.age : ''),
-      csvVal(pdiData ? pdiData.startedAt : ''), csvVal(pdiData ? pdiData.completedAt : ''), csvVal(pdiData ? pdiData.skippedForTesting : ''),
-      csvVal(idx + 1), csvVal(item.question), csvVal(item.response), csvVal(item.distress), csvVal(item.frequency), csvVal(item.conviction)
-    ].join(','));
-  });
-  return rows.join('\n');
-}
 
 function buildAWSBasicSummaryCSV(){
   const cols = ['ParticipantID','StartedAt','CompletedAt','DidPass','TotalCorrect','TotalTrials'];
