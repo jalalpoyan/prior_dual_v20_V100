@@ -1490,39 +1490,46 @@ body.mobile-build::before{content:none}
 .touch-panel.visible{display:flex}
 .touch-panel-hint{display:none}
 .touch-main-buttons,.touch-quest-buttons{
-  display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:nowrap
+  width:min(100vw,560px);
+  display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:nowrap;
+  padding:0 clamp(14px,6.5vw,34px)
 }
 .touch-main-buttons{
-  width:min(100vw,520px);
-  justify-content:space-between;
-  padding:0 clamp(18px,6vw,34px);
-  gap:14px;
+  width:min(100vw,560px);
+}
+.touch-quest-buttons{
+  width:min(100vw,560px);
 }
 .touch-btn{
-  width:min(39vw,142px);height:min(39vw,142px);min-height:120px;min-width:120px;
-  padding:12px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);
-  background:rgba(255,255,255,0.09);color:#eef7fa;font-family:'Rajdhani',sans-serif;
-  font-weight:700;font-size:clamp(18px,4.6vw,22px);letter-spacing:1px;text-transform:uppercase;
+  width:clamp(142px,37vw,182px);height:clamp(142px,37vw,182px);min-height:142px;min-width:142px;
+  padding:14px;border-radius:999px;border:1px solid rgba(255,255,255,0.20);
+  background:rgba(255,255,255,0.10);color:#eef7fa;font-family:'Rajdhani',sans-serif;
+  font-weight:700;font-size:clamp(21px,5vw,24px);letter-spacing:1.1px;text-transform:uppercase;
   text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
-  touch-action:manipulation;box-shadow:0 12px 24px rgba(0,0,0,0.24)
+  touch-action:manipulation;box-shadow:0 14px 28px rgba(0,0,0,0.26)
 }
-.touch-main-buttons .touch-btn{
-  width:min(41vw,164px);height:min(41vw,164px);min-width:132px;min-height:132px;
-  padding:14px;font-size:clamp(20px,5.1vw,24px);letter-spacing:1.1px;
-}
-.touch-main-buttons .touch-btn.low,
-.touch-main-buttons .touch-btn.high{
-  background:rgba(255,255,255,0.10);
-  border-color:rgba(255,255,255,0.20);
+.touch-main-buttons .touch-btn,
+.touch-quest-buttons .touch-btn{
+  width:clamp(142px,37vw,182px);height:clamp(142px,37vw,182px);min-width:142px;min-height:142px;
+  padding:14px;font-size:clamp(21px,5vw,24px);letter-spacing:1.1px;
+  background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20);
 }
 .touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
-.touch-btn.high{background:rgba(34,221,119,0.16);border-color:rgba(34,221,119,0.32)}
-.touch-main-buttons .touch-btn.high{background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20)}
-.touch-btn.quest-yes{background:rgba(34,221,119,0.18);border-color:rgba(34,221,119,0.34)}
-.touch-btn.quest-no{background:rgba(255,255,255,0.10)}
+.touch-btn.low,.touch-btn.high,.touch-btn.quest-yes,.touch-btn.quest-no{background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20)}
+body.mobile-build #screen-quest-intro{padding-top:calc(env(safe-area-inset-top,0px) + 14px)}
+body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:visible !important;margin-bottom:8px}
 @media (orientation: portrait){
-  .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 22px)}
-  .touch-main-buttons{padding:0 clamp(20px,6.5vw,36px)}
+  .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 26px)}
+  .touch-main-buttons,.touch-quest-buttons{padding:0 clamp(14px,6vw,28px);gap:16px}
+  .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
+    width:clamp(138px,37vw,178px);height:clamp(138px,37vw,178px);min-width:138px;min-height:138px;
+  }
+}
+@media (max-width: 390px){
+  .touch-main-buttons,.touch-quest-buttons{padding:0 clamp(12px,5vw,22px);gap:12px}
+  .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
+    width:clamp(128px,36vw,164px);height:clamp(128px,36vw,164px);min-width:128px;min-height:128px;font-size:clamp(20px,4.9vw,23px)
+  }
 }
 
 
@@ -2365,8 +2372,22 @@ function populateSetupForTesting() {
 function handleDevSkipClick() {
   if (!ALLOW_TEST_SHORTCUTS) return;
 
-  if (['training', 'test'].includes(appState)) {
-    skipToEndForTesting();
+  if (questRunning) {
+    skipQuestForTesting(false);
+    return;
+  }
+
+  if (appState === 'training') {
+    stopAudio();
+    if (rafId) cancelAnimationFrame(rafId);
+    finishTraining();
+    return;
+  }
+
+  if (appState === 'test') {
+    stopAudio();
+    if (rafId) cancelAnimationFrame(rafId);
+    finishExperiment();
     return;
   }
 
@@ -2386,9 +2407,6 @@ function handleDevSkipClick() {
     case 'setup':
       populateSetupForTesting();
       document.getElementById('btn-setup-next').click();
-      setTimeout(() => {
-        if (currentScreenName === 'awsBasic') skipAWSBasicForTesting();
-      }, 60);
       return;
     case 'awsBasic':
       skipAWSBasicForTesting();
@@ -2404,14 +2422,37 @@ function handleDevSkipClick() {
       showScreen('questIntro');
       return;
     case 'questIntro':
-      skipQuestForTesting(true);
+      skipQuestForTesting(false);
+      return;
+    case 'intro':
+      document.getElementById('btn-intro-start')?.click();
+      return;
+    case 'message':
+      document.getElementById('btn-msg-continue')?.click();
+      return;
+    case 'trainProg':
+      if (trainProgTimeoutId) {
+        clearTimeout(trainProgTimeoutId);
+        trainProgTimeoutId = null;
+      }
+      showScreen(null);
+      if (typeof pendingTrainProgCallback === 'function') {
+        const cb = pendingTrainProgCallback;
+        pendingTrainProgCallback = null;
+        cb();
+      }
+      return;
+    case 'mission':
+      document.getElementById('btn-ms-continue')?.click();
       return;
     case 'caps':
       markQuestionnairesSkipped();
       startSavingFlow();
       return;
     case 'final':
-      if (!capsData || !capsData.completedAt) markQuestionnairesSkipped();
+      if (!capsData || !capsData.completedAt) {
+        markQuestionnairesSkipped();
+      }
       startSavingFlow();
       return;
     case 'saving':
@@ -2423,12 +2464,6 @@ function handleDevSkipClick() {
       return;
     case 'end':
       location.reload();
-      return;
-    case 'intro':
-    case 'message':
-    case 'trainProg':
-    case 'mission':
-      skipToEndForTesting();
       return;
     default:
       break;
@@ -2443,8 +2478,6 @@ function handleDevSkipClick() {
     }
     return;
   }
-
-  skipToEndForTesting();
 }
 
 if (devSkipBtn) {
@@ -4821,13 +4854,26 @@ function finishTraining(){
   );
 }
 
+let trainProgTimeoutId = null;
+let pendingTrainProgCallback = null;
+
 function showTrainProg(nTrial, accPct, cb){
   document.getElementById('tp-label').textContent  = `Training — trial ${nTrial}`;
   document.getElementById('tp-acc').textContent    = `${accPct.toFixed(0)}%`;
   document.getElementById('tp-acc').style.color    = accPct>=CFG.trainAccThresh*100?'#22dd77':'#ff8800';
   document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% over last 40 trials`;
+  pendingTrainProgCallback = cb;
   showScreen('trainProg');
-  setTimeout(()=>{ showScreen(null); cb(); }, 2000);
+  if (trainProgTimeoutId) clearTimeout(trainProgTimeoutId);
+  trainProgTimeoutId = setTimeout(()=>{
+    trainProgTimeoutId = null;
+    showScreen(null);
+    if (typeof pendingTrainProgCallback === 'function') {
+      const nextCb = pendingTrainProgCallback;
+      pendingTrainProgCallback = null;
+      nextCb();
+    }
+  }, 2000);
 }
 
 function showMissionSummary(mNum, score, btnText, cb){
