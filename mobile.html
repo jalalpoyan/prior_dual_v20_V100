@@ -2511,6 +2511,7 @@ if (devSkipBtn) {
 }
 
 let mainExperimentCompleted = false;
+let sessionBaseName = null; // locked on first upload so both uploads share the same folder
 let finalScreenPrepared = false;
 
 // Trial runtime
@@ -3452,7 +3453,8 @@ document.getElementById('btn-caps-submit').addEventListener('click', () => {
   }
   capsData.completedAt = new Date().toISOString();
   if (mainExperimentCompleted) {
-    startSavingFlow();
+    silentUploadBackground(); // Upload 2: full data with questionnaire, same folder
+    openDebriefScreen();
   } else {
     showScreen('intro');
   }
@@ -4988,6 +4990,7 @@ function finishExperiment(){
   prepareFinalScreen();
   updateFinalContinueButton();
   showScreen('final');
+  silentUploadBackground(); // Upload 1: main trial data, fires silently in background
 }
 
 function openDebriefScreen(){
@@ -5060,7 +5063,7 @@ document.getElementById('btn-final-debrief').addEventListener('click', () => {
     showCapsScreen();
     return;
   }
-  startSavingFlow();
+  openDebriefScreen(); // upload already running in background — skip saving screen
 });
 document.getElementById('btn-saving-continue').addEventListener('click', openDebriefScreen);
 document.getElementById('btn-saving-download').addEventListener('click', downloadSessionPackage);
@@ -5144,8 +5147,11 @@ function buildRemoteSummaryRow(){
 function buildRemoteUploadPayload(){
   mainFigureDataUrl = generateMainFigureDataURL();
   const safePID = sanitizeFilename(PID || 'participant');
-  const stamp = new Date().toISOString().replace(/[:.]/g,'-');
-  const baseName = `prior_session_${safePID}_${stamp}`;
+  if (!sessionBaseName) {
+    const stamp = new Date().toISOString().replace(/[:.]/g,'-');
+    sessionBaseName = `prior_session_${safePID}_${stamp}`;
+  }
+  const baseName = sessionBaseName;
   const manifest = buildSessionManifest();
   const mainCSV = buildMainCSV();
   const questCSV = buildQuestCSV();
@@ -5271,6 +5277,19 @@ async function uploadSessionPackageRemote(force=false){
   })();
 
   return remoteUploadState.promise;
+}
+
+// Fires upload silently in background — no saving screen shown to participant.
+// Called twice: once after main experiment, once after questionnaire.
+// Both uploads share sessionBaseName so files land in the same Drive folder.
+function silentUploadBackground() {
+  if (!remoteUploadConfigured()) return;
+  remoteUploadState.started  = false;
+  remoteUploadState.finished = false;
+  remoteUploadState.success  = false;
+  remoteUploadState.promise  = null;
+  remoteUploadState.lastError = '';
+  uploadSessionPackageRemote(true).catch(e => console.warn('Silent upload failed:', e));
 }
 
 function escapeHTML(value){
