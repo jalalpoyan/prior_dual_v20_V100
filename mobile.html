@@ -1468,7 +1468,7 @@ body.mobile-build::before{content:none}
   .btn,.btn-row .btn{width:100%;min-height:56px;font-size:18px}
   .doc-window{max-height:68vh;padding:10px}
   .doc-window-bar{padding:10px 12px}
-  #screen-intro{width:min(430px,94vw);padding-bottom:170px}
+  #screen-intro{width:min(430px,94vw);padding-bottom:clamp(210px,52vw,240px)}
   #screen-intro .instr-item{font-size:16px;padding:14px 16px}
   #screen-quest-intro .instr-item{font-size:17px !important;padding:14px 16px !important}
   #screen-quest-intro .tagline{font-size:clamp(22px,7vw,32px) !important}
@@ -1476,59 +1476,56 @@ body.mobile-build::before{content:none}
   #screen-setup .setup-requirement-text{font-size:16px;line-height:1.55}
   #screen-setup .setup-requirement-title{font-size:14px}
 }
+/* ── TOUCH CONTROLS: corner placement ── */
 .touch-controls{
   position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;
-  justify-content:center;pointer-events:none;
-  padding:0 0 calc(env(safe-area-inset-bottom,0px) + 18px)
+  align-items:flex-end;justify-content:space-between;pointer-events:none;
+  touch-action:none;
+  padding:0 clamp(14px,4vw,28px) calc(env(safe-area-inset-bottom,0px) + 24px)
 }
 .touch-controls.visible{display:flex}
 .touch-panel{
-  width:min(430px,94vw);display:none;flex-direction:column;align-items:center;justify-content:center;
-  gap:0;pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0
+  width:100%;display:none;flex-direction:row;align-items:flex-end;justify-content:space-between;
+  pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0;gap:0
 }
-#touch-main-panel{width:min(100vw,520px)}
+#touch-main-panel{width:100%}
 .touch-panel.visible{display:flex}
 .touch-panel-hint{display:none}
 .touch-main-buttons,.touch-quest-buttons{
-  width:min(100vw,560px);
-  display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:nowrap;
-  padding:0 clamp(14px,6.5vw,34px)
+  width:100%;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:0;flex-wrap:nowrap;
+  padding:0
 }
-.touch-main-buttons{
-  width:min(100vw,560px);
-}
-.touch-quest-buttons{
-  width:min(100vw,560px);
-}
+/* Bigger circles — anchored to left/right corners */
 .touch-btn{
-  width:clamp(142px,37vw,182px);height:clamp(142px,37vw,182px);min-height:142px;min-width:142px;
-  padding:14px;border-radius:999px;border:1px solid rgba(255,255,255,0.20);
-  background:rgba(255,255,255,0.10);color:#eef7fa;font-family:'Rajdhani',sans-serif;
-  font-weight:700;font-size:clamp(21px,5vw,24px);letter-spacing:1.1px;text-transform:uppercase;
+  width:clamp(178px,46vw,218px);height:clamp(178px,46vw,218px);min-height:178px;min-width:178px;
+  padding:14px;border-radius:999px;border:1px solid rgba(255,255,255,0.22);
+  background:rgba(255,255,255,0.12);color:#eef7fa;font-family:'Rajdhani',sans-serif;
+  font-weight:700;font-size:clamp(22px,5.5vw,27px);letter-spacing:1.1px;text-transform:uppercase;
   text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
-  touch-action:manipulation;box-shadow:0 14px 28px rgba(0,0,0,0.26)
+  touch-action:manipulation;box-shadow:0 14px 32px rgba(0,0,0,0.32);
+  flex-shrink:0;
 }
 .touch-main-buttons .touch-btn,
 .touch-quest-buttons .touch-btn{
-  width:clamp(142px,37vw,182px);height:clamp(142px,37vw,182px);min-width:142px;min-height:142px;
-  padding:14px;font-size:clamp(21px,5vw,24px);letter-spacing:1.1px;
-  background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20);
+  width:clamp(178px,46vw,218px);height:clamp(178px,46vw,218px);min-width:178px;min-height:178px;
+  padding:14px;font-size:clamp(22px,5.5vw,27px);letter-spacing:1.1px;
+  background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);
 }
 .touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
-.touch-btn.low,.touch-btn.high,.touch-btn.quest-yes,.touch-btn.quest-no{background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.20)}
+.touch-btn.low,.touch-btn.high,.touch-btn.quest-yes,.touch-btn.quest-no{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22)}
 body.mobile-build #screen-quest-intro{padding-top:calc(env(safe-area-inset-top,0px) + 14px)}
 body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:visible !important;margin-bottom:8px}
 @media (orientation: portrait){
-  .touch-controls{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 26px)}
-  .touch-main-buttons,.touch-quest-buttons{padding:0 clamp(14px,6vw,28px);gap:16px}
+  .touch-controls{padding:0 clamp(12px,3.5vw,24px) calc(env(safe-area-inset-bottom,0px) + 28px)}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(138px,37vw,178px);height:clamp(138px,37vw,178px);min-width:138px;min-height:138px;
+    width:clamp(170px,44vw,210px);height:clamp(170px,44vw,210px);min-width:170px;min-height:170px;
   }
 }
 @media (max-width: 390px){
-  .touch-main-buttons,.touch-quest-buttons{padding:0 clamp(12px,5vw,22px);gap:12px}
+  .touch-controls{padding:0 clamp(10px,3vw,18px) calc(env(safe-area-inset-bottom,0px) + 22px)}
   .touch-btn,.touch-main-buttons .touch-btn,.touch-quest-buttons .touch-btn{
-    width:clamp(128px,36vw,164px);height:clamp(128px,36vw,164px);min-width:128px;min-height:128px;font-size:clamp(20px,4.9vw,23px)
+    width:clamp(152px,41vw,184px);height:clamp(152px,41vw,184px);min-width:152px;min-height:152px;font-size:clamp(20px,5.2vw,24px)
   }
 }
 
@@ -5893,8 +5890,24 @@ primeEmbeddedAudioLoad();
 
   function bindHoldButton(el, which){
     if (!el) return;
-    ['pointerdown','touchstart','mousedown'].forEach(type => el.addEventListener(type, evt => handleVirtualResponseStart(which, evt), { passive:false }));
-    ['pointerup','pointercancel','touchend','touchcancel','mouseup','mouseleave'].forEach(type => el.addEventListener(type, evt => handleVirtualResponseEnd(which, evt), { passive:false }));
+    // Guard against browsers firing both pointerdown AND touchstart for the same touch,
+    // which would call handleVirtualResponseStart twice and corrupt hold-timing.
+    let lastStartStamp = -999;
+    const onStart = evt => {
+      const now = evt.timeStamp !== undefined ? evt.timeStamp : performance.now();
+      if (now - lastStartStamp < 60) return; // same physical touch — skip duplicate
+      lastStartStamp = now;
+      handleVirtualResponseStart(which, evt);
+    };
+    let lastEndStamp = -999;
+    const onEnd = evt => {
+      const now = evt.timeStamp !== undefined ? evt.timeStamp : performance.now();
+      if (now - lastEndStamp < 60) return;
+      lastEndStamp = now;
+      handleVirtualResponseEnd(which, evt);
+    };
+    ['pointerdown','touchstart','mousedown'].forEach(type => el.addEventListener(type, onStart, { passive:false }));
+    ['pointerup','pointercancel','touchend','touchcancel','mouseup','mouseleave'].forEach(type => el.addEventListener(type, onEnd, { passive:false }));
   }
 
   createQuestResponseCollector = function(startTimeMs) {
@@ -5972,9 +5985,18 @@ primeEmbeddedAudioLoad();
     bindHoldButton(touchEls.rare, 'rare');
     const yesBtn = document.getElementById('touch-btn-quest-yes');
     const noBtn = document.getElementById('touch-btn-quest-no');
+    // Guard against pointerup + touchend + click all firing for one tap.
+    // Only the first event within a 100ms window is acted on.
+    let lastQuestStamp = { yes: -999, no: -999 };
+    const makeQuestHandler = (value, key) => evt => {
+      const now = evt.timeStamp !== undefined ? evt.timeStamp : performance.now();
+      if (now - lastQuestStamp[key] < 100) return;
+      lastQuestStamp[key] = now;
+      submitQuestTouchResponse(value, evt);
+    };
     ['pointerup','touchend','click'].forEach(type => {
-      yesBtn.addEventListener(type, evt => submitQuestTouchResponse(1, evt), { passive:false });
-      noBtn.addEventListener(type, evt => submitQuestTouchResponse(0, evt), { passive:false });
+      yesBtn.addEventListener(type, makeQuestHandler(1, 'yes'), { passive:false });
+      noBtn.addEventListener(type, makeQuestHandler(0, 'no'),  { passive:false });
     });
     window.setInterval(updateTouchPanels, 80);
     updateTouchPanels();
