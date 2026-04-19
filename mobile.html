@@ -1460,31 +1460,49 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 
 
 
-body.mobile-build::before{content:'PHONE VERSION';position:fixed;top:10px;right:12px;z-index:12;font:700 11px/1 Rajdhani,sans-serif;letter-spacing:1.8px;color:#0d1620;background:rgba(34,221,119,0.92);padding:6px 10px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+body.mobile-build::before{content:none}
 @media (max-width: 900px){
-  #overlay{align-items:flex-start;padding:88px 12px calc(env(safe-area-inset-bottom,0px) + 16px)}
-  .screen{width:min(100%,96vw);padding:10px 0 16px;gap:12px}
+  #overlay{align-items:flex-start;padding:70px 14px calc(env(safe-area-inset-bottom,0px) + 18px)}
+  .screen{width:min(430px,94vw);padding:8px 0 16px;gap:12px}
   .btn-row{width:100%;flex-direction:column;align-items:stretch}
   .btn,.btn-row .btn{width:100%;min-height:56px;font-size:18px}
-  .doc-window{max-height:62vh;padding:12px}
+  .doc-window{max-height:68vh;padding:10px}
   .doc-window-bar{padding:10px 12px}
-  #screen-intro{width:min(100%,96vw);padding-bottom:110px}
+  #screen-intro{width:min(430px,94vw);padding-bottom:170px}
   #screen-intro .instr-item{font-size:16px;padding:14px 16px}
-  #screen-quest-intro .instr-item{font-size:18px !important;padding:14px 16px !important}
+  #screen-quest-intro .instr-item{font-size:17px !important;padding:14px 16px !important}
   #screen-quest-intro .tagline{font-size:clamp(22px,7vw,32px) !important}
   #screen-setup .form-input{font-size:18px}
+  #screen-setup .setup-requirement-text{font-size:16px;line-height:1.55}
+  #screen-setup .setup-requirement-title{font-size:14px}
 }
-.touch-controls{position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;justify-content:center;pointer-events:none;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 10px)}
+.touch-controls{
+  position:fixed;left:0;right:0;bottom:0;z-index:14;display:none;
+  justify-content:center;pointer-events:none;
+  padding:0 10px calc(env(safe-area-inset-bottom,0px) + 12px)
+}
 .touch-controls.visible{display:flex}
-.touch-panel{width:min(760px,100%);display:none;flex-direction:column;gap:8px;pointer-events:auto;background:rgba(10,18,28,0.86);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.12);box-shadow:0 -14px 38px rgba(0,0,0,0.22);border-radius:20px;padding:10px 10px 12px}
+.touch-panel{
+  width:min(430px,94vw);display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;pointer-events:auto;background:transparent;border:none;box-shadow:none;padding:0
+}
 .touch-panel.visible{display:flex}
-.touch-panel-hint{font-size:12px;line-height:1.35;color:#d7e8ee;text-align:center;font-family:'Share Tech Mono',monospace;min-height:16px}
-.touch-main-buttons,.touch-quest-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.touch-btn{min-height:62px;padding:14px 10px;border-radius:16px;border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.08);color:#eef7fa;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;letter-spacing:1px;text-transform:uppercase;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-.touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.99);background:rgba(0,212,255,0.16);border-color:rgba(0,212,255,0.48)}
-.touch-btn.high{background:rgba(34,221,119,0.14);border-color:rgba(34,221,119,0.28)}
-.touch-btn.quest-yes{background:rgba(34,221,119,0.16);border-color:rgba(34,221,119,0.32)}
-.touch-btn.quest-no{background:rgba(255,255,255,0.09)}
+.touch-panel-hint{display:none}
+.touch-main-buttons,.touch-quest-buttons{
+  display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:nowrap
+}
+.touch-btn{
+  width:min(39vw,142px);height:min(39vw,142px);min-height:120px;min-width:120px;
+  padding:12px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.09);color:#eef7fa;font-family:'Rajdhani',sans-serif;
+  font-weight:700;font-size:clamp(18px,4.6vw,22px);letter-spacing:1px;text-transform:uppercase;
+  text-align:center;line-height:1.05;white-space:normal;user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;box-shadow:0 12px 24px rgba(0,0,0,0.24)
+}
+.touch-btn.active,.touch-btn:active{transform:translateY(1px) scale(0.985);background:rgba(0,212,255,0.18);border-color:rgba(0,212,255,0.5)}
+.touch-btn.high{background:rgba(34,221,119,0.16);border-color:rgba(34,221,119,0.32)}
+.touch-btn.quest-yes{background:rgba(34,221,119,0.18);border-color:rgba(34,221,119,0.34)}
+.touch-btn.quest-no{background:rgba(255,255,255,0.10)}
 
 </style>
 </head>
@@ -1699,7 +1717,7 @@ body.mobile-build::before{content:'PHONE VERSION';position:fixed;top:10px;right:
       <div class="tagline">Can you hear the beep in the noise?</div>
       <div class="divider"></div>
       <div class="instr-list">
-        <div class="instr-item"><div class="instr-icon">⌨️</div><div>Press <span class="key-badge">Y</span> if you heard the beep and <span class="key-badge">N</span> if you did not.</div></div>
+        <div class="instr-item"><div class="instr-icon">📱</div><div>Tap <strong>YES</strong> if you heard the beep and <strong>NO</strong> if you did not.</div></div>
         <div class="instr-item"><div class="instr-icon">▶</div><div>Use the preview button below to hear the tone by itself before you begin.</div></div>
       </div>
       <div class="quest-preview-wrap">
@@ -1772,9 +1790,9 @@ body.mobile-build::before{content:'PHONE VERSION';position:fixed;top:10px;right:
     <div class="divider"></div>
     <div class="instr-list">
       <div class="instr-item">
-        <div class="instr-icon">⌨️</div>
+        <div class="instr-icon">📱</div>
         <div>
-          Press <strong><span class="key-badge" id="intro-common-key">Q</span></strong> for the <strong>low frequency beep</strong> and <strong><span class="key-badge" id="intro-rare-key">E</span></strong> for the <strong>high frequency beep</strong>.<br>
+          Tap <strong>LOW BEEP</strong> for the <strong>low frequency beep</strong> and <strong>HIGH BEEP</strong> for the <strong>high frequency beep</strong>.<br>
           If you do not hear a beep, <strong>do not press anything</strong>.
         </div>
       </div>
@@ -1782,7 +1800,7 @@ body.mobile-build::before{content:'PHONE VERSION';position:fixed;top:10px;right:
       <div class="instr-item">
         <div class="instr-icon">📈</div>
         <div>
-          After you respond, hold the same key to rate your confidence.<br>
+          After you respond, keep holding the same button to rate your confidence.<br>
           Release sooner for <strong>lower confidence</strong> and later for <strong>higher confidence</strong>.
         </div>
       </div>
@@ -2721,11 +2739,11 @@ function emphasizeAWSBasicPhrases(root){
     },
     {
       pattern: /Press\s+the\s+button,\s+then\s+turn\s+up\s+the\s+volume\s+on\s+your\s+computer\s+until\s+the\s+calibration\s+noise\s+is\s+at\s+a\s+loud\s+but\s+comfortable\s+level\.?/gi,
-      replace: "Press the 'play' button, then turn up the volume on your computer until the noise is at a loud but comfortable level."
+      replace: "Press the 'play' button, then turn up the volume on your device until the noise is at a loud but comfortable level."
     },
     {
       pattern: /Press\s+the\s+button,\s+then\s+turn\s+up\s+the\s+volume\s+on\s+until\s+the\s+noise\s+is\s+at\s+a\s+loud\s+but\s+comfortable\s+level\.?/gi,
-      replace: "Press the 'play' button, then turn up the volume on until the noise is at a loud but comfortable level."
+      replace: "Press the 'play' button, then turn up the volume on your device until the noise is at a loud but comfortable level."
     },
     {
       pattern: /Play\s+the\s+calibration\s+sound\s+as\s+many\s+times\s+as\s+you\s+like\.?/gi,
@@ -5559,14 +5577,14 @@ primeEmbeddedAudioLoad();
 
 <div id="touch-controls" class="touch-controls" aria-hidden="true">
   <div id="touch-main-panel" class="touch-panel">
-    <div id="touch-main-hint" class="touch-panel-hint">Tap LOW or HIGH. Keep holding the same button to rate confidence.</div>
+    <div id="touch-main-hint" class="touch-panel-hint"></div>
     <div class="touch-main-buttons">
-      <button type="button" class="touch-btn low" id="touch-btn-common">Low beep</button>
-      <button type="button" class="touch-btn high" id="touch-btn-rare">High beep</button>
+      <button type="button" class="touch-btn low" id="touch-btn-common">LOW<br>BEEP</button>
+      <button type="button" class="touch-btn high" id="touch-btn-rare">HIGH<br>BEEP</button>
     </div>
   </div>
   <div id="touch-quest-panel" class="touch-panel">
-    <div id="touch-quest-hint" class="touch-panel-hint">Wait for the trial to start, then tap YES or NO.</div>
+    <div id="touch-quest-hint" class="touch-panel-hint"></div>
     <div class="touch-quest-buttons">
       <button type="button" class="touch-btn quest-yes" id="touch-btn-quest-yes">Yes</button>
       <button type="button" class="touch-btn quest-no" id="touch-btn-quest-no">No</button>
@@ -5585,8 +5603,8 @@ primeEmbeddedAudioLoad();
   function setHtml(selector, html){ const el=document.querySelector(selector); if(el) el.innerHTML = html; }
 
   function refreshMobileCopy(){
-    setHtml('#screen-setup .setup-requirement-title', 'Phone / touch setup');
-    setHtml('#screen-setup .setup-requirement-text', 'Please wear <strong>headphones or earbuds</strong>. A headphone check will follow before the experiment begins. For the smoothest experience, keep your phone in <strong>landscape</strong>.');
+    setHtml('#screen-setup .setup-requirement-title', 'Audio requirement');
+    setHtml('#screen-setup .setup-requirement-text', 'Please wear <strong>headphones or earbuds</strong>. A headphone check will follow before the experiment begins.');
     const introItems = document.querySelectorAll('#screen-intro .instr-item');
     if (introItems[0]) introItems[0].innerHTML = '<div class="instr-icon">📱</div><div>Tap <strong>LOW BEEP</strong> for the <strong>low frequency beep</strong> and <strong>HIGH BEEP</strong> for the <strong>high frequency beep</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>';
     if (introItems[1]) introItems[1].innerHTML = '<div class="instr-icon">📈</div><div>After you respond, <strong>keep holding the same button</strong> to rate your confidence.<br>Release sooner for <strong>lower confidence</strong> and later for <strong>higher confidence</strong>.</div>';
@@ -5604,12 +5622,9 @@ primeEmbeddedAudioLoad();
     touchEls.root.setAttribute('aria-hidden', showMain || showQuest ? 'false' : 'true');
     touchEls.main.classList.toggle('visible', !!showMain);
     touchEls.quest.classList.toggle('visible', !!showQuest);
-    if (touchEls.questHint) touchEls.questHint.textContent = questTouchActive ? 'Tap YES if you heard the beep. Tap NO if you did not.' : 'Wait for the trial to start, then tap YES or NO.';
-    if (touchEls.mainHint) {
-      if (tsState === 'confidence') touchEls.mainHint.textContent = 'Keep holding the same button to raise confidence. Release to submit.';
-      else if (tsState === 'playing' || tsState === 'post_resp') touchEls.mainHint.textContent = 'Tap LOW or HIGH. If you hear no beep, do not press anything.';
-      else touchEls.mainHint.textContent = 'Waiting for the next trial…';
-    }
+    if (touchEls.questHint) touchEls.questHint.textContent = '';
+    if (touchEls.mainHint) touchEls.mainHint.textContent = '';
+
     if (touchEls.common) touchEls.common.classList.toggle('active', activeTouchKey === KEY_COMMON);
     if (touchEls.rare) touchEls.rare.classList.toggle('active', activeTouchKey === KEY_RARE);
   }
