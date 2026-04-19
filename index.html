@@ -5,125 +5,168 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>The PRIOR Game</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
-  *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:#1a1a2e;color:#eef7fa;font-family:'Rajdhani',sans-serif}
-  body{min-height:100svh;display:grid;place-items:center;padding:24px}
-  .card{width:min(720px,100%);background:rgba(10,18,28,.9);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px 28px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
-  h1{margin:0 0 10px;font:700 clamp(34px,7vw,60px)/1 'Share Tech Mono',monospace;letter-spacing:2px}
-  .sub{margin:0;color:#b7c8cf;font-size:18px;line-height:1.55}
-  .loader-wrap{display:grid;place-items:center;gap:16px;margin:26px 0 18px}
-  .spinner{width:56px;height:56px;border-radius:50%;border:4px solid rgba(255,255,255,.12);border-top-color:#00d4ff;animation:spin .95s linear infinite}
-  .status{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:18px;line-height:1.45;margin:0 auto;max-width:560px}
-  .manual{display:none;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
-  .manual.visible{display:grid}
-  a.btn{appearance:none;border:none;text-decoration:none;text-align:center;padding:16px 18px;border-radius:16px;font:700 18px/1.2 'Rajdhani',sans-serif;letter-spacing:.6px;cursor:pointer;touch-action:manipulation}
-  .primary{background:linear-gradient(135deg,#FED100,#ffd84b);color:#0d1620}
-  .secondary{background:linear-gradient(135deg,#243548,#1b2638);color:#eef7fa;border:1px solid rgba(255,255,255,.12)}
-  .note{margin-top:18px;color:#90a7b2;font-size:15px;line-height:1.55}
-  .hidden{display:none !important}
-  @keyframes spin{to{transform:rotate(360deg)}}
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#1a1a2e;color:#eef7fa;font-family:'Rajdhani',sans-serif}
+body{min-height:100svh;display:grid;place-items:center;padding:24px}
+.card{width:min(720px,100%);background:rgba(10,18,28,.9);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:32px 28px;box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center}
+h1{margin:0 0 10px;font:700 clamp(34px,7vw,60px)/1 'Share Tech Mono',monospace;letter-spacing:2px}
+.sub{margin:0;color:#b7c8cf;font-size:18px;line-height:1.55}
+.loader-wrap{display:grid;place-items:center;gap:16px;margin:26px 0 18px}
+.spinner{width:56px;height:56px;border-radius:50%;border:4px solid rgba(255,255,255,.12);border-top-color:#00d4ff;animation:spin .95s linear infinite}
+.status{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:18px;line-height:1.45;margin:0 auto;max-width:560px}
+.manual{display:none;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.manual.visible{display:grid}
+a.btn{appearance:none;border:none;text-decoration:none;text-align:center;padding:16px 18px;border-radius:16px;font:700 18px/1.2 'Rajdhani',sans-serif;letter-spacing:.6px;cursor:pointer;touch-action:manipulation}
+.primary{background:linear-gradient(135deg,#FED100,#ffd84b);color:#0d1620}
+.secondary{background:linear-gradient(135deg,#243548,#1b2638);color:#eef7fa;border:1px solid rgba(255,255,255,.12)}
+.note{margin-top:18px;color:#90a7b2;font-size:15px;line-height:1.55}
+.hidden{display:none !important}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h1>THE PRIOR GAME</h1>
-    <p class="sub">Loading the correct version for this device…</p>
-
-    <div class="loader-wrap" id="loader-wrap">
-      <div class="spinner" id="spinner" aria-hidden="true"></div>
-      <div class="status" id="device-status">Detecting device…</div>
-    </div>
-
-    <div class="manual" id="manual-picker">
-      <a class="btn primary" href="desktop.html">Use computer / keyboard version</a>
-      <a class="btn secondary" href="mobile.html">Use phone / touch version</a>
-    </div>
-
-    <div class="note" id="device-note">If detection is clear, this page will continue automatically.</div>
+<div class="card">
+  <h1>THE PRIOR GAME</h1>
+  <p class="sub">Loading the correct version for this device…</p>
+  <div class="loader-wrap" id="loader-wrap">
+    <div class="spinner" id="spinner" aria-hidden="true"></div>
+    <div class="status" id="device-status">Detecting device…</div>
   </div>
+  <div class="manual" id="manual-picker">
+    <a class="btn primary" href="desktop.html">Use computer / keyboard version</a>
+    <a class="btn secondary" href="mobile.html">Use phone / touch version</a>
+  </div>
+  <div class="note" id="device-note">If detection is clear, this page will continue automatically.</div>
+</div>
+
 <script>
-(function(){
-  const statusEl = document.getElementById('device-status');
-  const spinnerEl = document.getElementById('spinner');
-  const manualEl = document.getElementById('manual-picker');
-  const noteEl = document.getElementById('device-note');
+(function () {
+  var statusEl  = document.getElementById('device-status');
+  var spinnerEl = document.getElementById('spinner');
+  var manualEl  = document.getElementById('manual-picker');
+  var noteEl    = document.getElementById('device-note');
 
-  function detectMode(){
+  /* ── 1. DEVICE DETECTION (synchronous) ──────────────────────── */
+  function detectMode() {
     try {
-      const mm = q => window.matchMedia ? window.matchMedia(q).matches : null;
-      const coarsePrimary = mm('(pointer: coarse)');
-      const coarseAny = mm('(any-pointer: coarse)');
-      const finePrimary = mm('(pointer: fine)');
-      const hoverPrimary = mm('(hover: hover)');
-      const noHover = mm('(hover: none)');
-      const touchPoints = Number(navigator.maxTouchPoints || 0);
-      const shortEdge = Math.min(window.innerWidth || 9999, window.innerHeight || 9999);
-      const ua = navigator.userAgent || '';
-      const mobileUA = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(ua);
+      var mm = function(q){ return window.matchMedia ? window.matchMedia(q).matches : null; };
+      var coarsePrimary = mm('(pointer: coarse)');
+      var coarseAny     = mm('(any-pointer: coarse)');
+      var finePrimary   = mm('(pointer: fine)');
+      var hoverPrimary  = mm('(hover: hover)');
+      var noHover       = mm('(hover: none)');
+      var touchPoints   = Number(navigator.maxTouchPoints || 0);
+      var shortEdge     = Math.min(window.innerWidth || 9999, window.innerHeight || 9999);
+      var ua            = navigator.userAgent || '';
+      var mobileUA      = /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(ua);
 
-      const mobileSignals = [
+      var mobileSignals = [
         coarsePrimary === true && noHover === true,
-        coarseAny === true && touchPoints > 0 && shortEdge <= 1100,
-        touchPoints >= 2 && shortEdge <= 900,
-        mobileUA && shortEdge <= 1100
+        coarseAny     === true && touchPoints > 0 && shortEdge <= 1100,
+        touchPoints   >= 2    && shortEdge <= 900,
+        mobileUA             && shortEdge <= 1100
       ].filter(Boolean).length;
 
-      const desktopSignals = [
+      var desktopSignals = [
         finePrimary === true && hoverPrimary === true,
         shortEdge > 1100 && touchPoints === 0 && !mobileUA
       ].filter(Boolean).length;
 
-      if (mobileSignals >= 1 && desktopSignals === 0) return 'mobile';
-      if (desktopSignals >= 1 && mobileSignals === 0) return 'desktop';
-      if (mobileSignals >= 2 && desktopSignals <= 1) return 'mobile';
-      if (desktopSignals >= 2 && mobileSignals === 0) return 'desktop';
+      if (mobileSignals >= 1 && desktopSignals === 0)                return 'mobile';
+      if (desktopSignals >= 1 && mobileSignals === 0)                return 'desktop';
+      if (mobileSignals >= 2  && desktopSignals <= 1)                return 'mobile';
+      if (desktopSignals >= 2 && mobileSignals === 0)                return 'desktop';
       return 'unknown';
-    } catch (err) {
+    } catch (e) {
       return 'unknown';
     }
   }
 
-  function showManualPicker(message){
+  /* ── 2. COUNTERBALANCING: server-side atomic counter ────────────
+   *
+   *  CountAPI increments a shared counter atomically on every hit,
+   *  so even simultaneous participants get different values.
+   *    odd  count → Version 1 (low-freq common:  1200 Hz)
+   *    even count → Version 2 (high-freq common: 2400 Hz)
+   *
+   *  Falls back to localStorage toggle if the API is unreachable.
+   * ─────────────────────────────────────────────────────────────── */
+  function getVersionFromServer() {
+    return new Promise(function (resolve) {
+      var TIMEOUT_MS = 2500;
+      var done       = false;
+
+      var timer = setTimeout(function () {
+        if (!done) { done = true; resolve(null); } // timeout → fallback
+      }, TIMEOUT_MS);
+
+      fetch('https://api.countapi.xyz/hit/prior-dual-v20-jalalpoyan/cb-counter')
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function (data) {
+          if (!done) {
+            done = true;
+            clearTimeout(timer);
+            resolve(data.value % 2 === 1 ? 1 : 2); // odd=v1, even=v2
+          }
+        })
+        .catch(function () {
+          if (!done) { done = true; clearTimeout(timer); resolve(null); }
+        });
+    });
+  }
+
+  function getVersionFromLocalStorage() {
+    var last = parseInt(localStorage.getItem('prior_last_version') || '0', 10);
+    var next = (last === 1) ? 2 : 1;
+    localStorage.setItem('prior_last_version', String(next));
+    return next;
+  }
+
+  /* ── 3. UI helpers ───────────────────────────────────────────── */
+  function showManualPicker(message) {
     statusEl.textContent = message;
     spinnerEl.classList.add('hidden');
     manualEl.classList.add('visible');
     noteEl.textContent = 'Please choose the version manually if automatic detection is unsure.';
   }
 
-  function redirectTo(target, message){
-    statusEl.textContent = message;
-    noteEl.textContent = 'You will be redirected automatically.';
-    setTimeout(function(){ window.location.replace(target); }, 900);
+  function redirectTo(target, message) {
+    statusEl.textContent  = message;
+    noteEl.textContent    = 'You will be redirected automatically.';
+    setTimeout(function () { window.location.replace(target); }, 900);
   }
 
-  const mode = detectMode();
+  /* ── 4. MAIN FLOW ────────────────────────────────────────────── */
+  var mode = detectMode();
 
-  // ── COUNTERBALANCING: alternate v=1 / v=2 each participant ──────
-  // localStorage persists on this device/browser, so each new visitor
-  // to index.html gets the opposite version from the last one.
-  // V1: low-freq = common (1200 Hz common, high-freq rare)
-  // V2: high-freq = common (2400 Hz common, low-freq rare)
-  var lastVersion = parseInt(localStorage.getItem('prior_last_version') || '0', 10);
-  var nextVersion = (lastVersion === 1) ? 2 : 1;
-  localStorage.setItem('prior_last_version', String(nextVersion));
-  var vParam = '?v=' + nextVersion;
+  statusEl.textContent = 'Assigning your session…';
 
-  // Update the manual-picker fallback links so they also carry the version
-  document.querySelector('a.primary').href  = 'desktop.html' + vParam;
-  document.querySelector('a.secondary').href = 'mobile.html' + vParam;
+  getVersionFromServer().then(function (serverVersion) {
+    var version = serverVersion !== null
+      ? serverVersion
+      : getVersionFromLocalStorage();           // fallback
 
-  if (mode === 'mobile') {
-    redirectTo('mobile.html' + vParam, 'Phone or touch device detected. Opening the phone version…');
-    return;
-  }
+    // Always keep localStorage in sync for reference
+    localStorage.setItem('prior_last_version', String(version));
 
-  if (mode === 'desktop') {
-    redirectTo('desktop.html' + vParam, 'Computer or keyboard device detected. Opening the desktop version…');
-    return;
-  }
+    var vParam = '?v=' + version;
 
-  showManualPicker('We could not confidently detect whether this is a phone or a computer.');
+    // Update manual-picker fallback links
+    document.querySelector('a.primary').href  = 'desktop.html' + vParam;
+    document.querySelector('a.secondary').href = 'mobile.html'  + vParam;
+
+    if (mode === 'mobile') {
+      redirectTo('mobile.html'  + vParam, 'Phone or touch device detected. Opening the phone version…');
+      return;
+    }
+    if (mode === 'desktop') {
+      redirectTo('desktop.html' + vParam, 'Computer or keyboard device detected. Opening the desktop version…');
+      return;
+    }
+    showManualPicker('We could not confidently detect whether this is a phone or a computer.');
+  });
+
 })();
 </script>
 </body>
