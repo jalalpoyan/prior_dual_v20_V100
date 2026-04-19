@@ -2471,7 +2471,7 @@ async function decodeEmbeddedAudioFiles({ interactive = false } = {}) {
   return decoded;
 }
 
-function ensureEmbeddedAudioReadyfunction ensureEmbeddedAudioReady(opts = {}) {
+function ensureEmbeddedAudioReady(opts = {}) {
   if (embeddedAudioReady && bgBuffers.length) {
     setEmbeddedAudioContinueEnabled(true);
     setEmbeddedAudioStatus(`✓ ${bgBuffers.length} built-in WAV file(s) loaded`, 'ok');
