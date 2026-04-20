@@ -1522,6 +1522,32 @@ body.mobile-build::before{content:none}
 body.mobile-build #screen-quest-intro{padding-top:calc(env(safe-area-inset-top,0px) + 14px)}
 body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:visible !important;margin-bottom:8px}
 
+/* Force mobile main response circles to the very bottom quarter points */
+#touch-main-panel{position:absolute;inset:0;}
+#touch-main-panel .touch-main-buttons{
+  position:absolute !important;
+  left:0; right:0;
+  bottom:calc(env(safe-area-inset-bottom,0px) + 8px) !important;
+  width:100%;
+  height:clamp(140px,38vw,220px) !important;
+  display:block !important;
+  padding:0 !important;
+  pointer-events:none;
+}
+#touch-main-panel #touch-btn-common,
+#touch-main-panel #touch-btn-rare{
+  position:absolute !important;
+  bottom:0 !important;
+  margin:0 !important;
+  transform:translateX(-50%);
+  pointer-events:auto;
+}
+#touch-main-panel #touch-btn-common{left:25vw !important;}
+#touch-main-panel #touch-btn-rare{left:75vw !important;}
+#touch-main-panel .touch-btn.active,
+#touch-main-panel .touch-btn:active{transform:translateX(-50%) scale(0.97) !important;}
+
+
 
 #dev-skip-btn{
   position:fixed;
@@ -1655,6 +1681,73 @@ button.btn-primary{ width: 100%; }
 
 /* Saving/debrief/end */
 #screen-saving .btn, #screen-debrief .btn, #screen-end .btn{ font-size: 22px !important; min-height: 60px !important; }
+
+
+/* Final mobile sample-button override: circular Q/E with frequency label underneath */
+#screen-intro .intro-sample-buttons{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:18px !important;
+  align-items:start !important;
+}
+#screen-intro #btn-demo-common,
+#screen-intro #btn-demo-rare{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  padding:0 !important;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:10px !important;
+}
+#screen-intro #btn-demo-common:hover,
+#screen-intro #btn-demo-rare:hover,
+#screen-intro #btn-demo-common:active,
+#screen-intro #btn-demo-rare:active{
+  background:transparent !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+#screen-intro .sample-circle-key{
+  width:clamp(84px,22vw,108px);
+  height:clamp(84px,22vw,108px);
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,0.22);
+  background:rgba(255,255,255,0.12);
+  color:#eef7fa;
+  font-family:'Rajdhani',sans-serif;
+  font-weight:700;
+  font-size:clamp(24px,7vw,34px);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  box-shadow:0 14px 32px rgba(0,0,0,0.32);
+}
+#screen-intro #btn-demo-common .sample-circle-key{border-color:rgba(254,209,0,0.28) !important;}
+#screen-intro #btn-demo-rare .sample-circle-key{border-color:rgba(237,41,57,0.28) !important;}
+#screen-intro .sample-circle-label{
+  display:block;
+  color:#eef7fa;
+  font-size:15px;
+  line-height:1.25;
+  letter-spacing:0.4px;
+  text-transform:none;
+  text-align:center;
+  font-weight:700;
+  max-width:11ch;
+}
+@media (max-width:760px){
+  #screen-intro .intro-sample-buttons{grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:14px !important;}
+  #screen-intro .sample-circle-label{font-size:14px; max-width:10ch;}
+}
 
 </style>
 </head>
@@ -1947,7 +2040,7 @@ button.btn-primary{ width: 100%; }
       <div class="instr-item">
         <div class="instr-icon">📱</div>
         <div>
-          Tap <strong>LOW BEEP</strong> for the <strong>low frequency beep</strong> and <strong>HIGH BEEP</strong> for the <strong>high frequency beep</strong>.<br>
+          Press <strong><span class="key-badge" id="intro-common-key">Q</span></strong> for the <strong>low frequency beep</strong> and <strong><span class="key-badge" id="intro-rare-key">E</span></strong> for the <strong>high frequency beep</strong>.<br>
           If you do not hear a beep, <strong>do not press anything</strong>.
         </div>
       </div>
@@ -2392,8 +2485,6 @@ function refreshIntroKeyLabels(){
 
   const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high frequency beep' : 'low frequency beep';
   const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low frequency beep' : 'high frequency beep';
-  const commonButtonName = COUNTERBALANCE_VERSION === 2 ? 'HIGH<br>BEEP' : 'LOW<br>BEEP';
-  const rareButtonName = COUNTERBALANCE_VERSION === 2 ? 'LOW<br>BEEP' : 'HIGH<br>BEEP';
   const commonDemoName = COUNTERBALANCE_VERSION === 2 ? 'HIGH FREQUENCY TONE' : 'LOW FREQUENCY TONE';
   const rareDemoName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
 
@@ -2402,18 +2493,20 @@ function refreshIntroKeyLabels(){
 
   const introItems = document.querySelectorAll('#screen-intro .instr-item');
   if (introItems[0]) {
-    introItems[0].innerHTML = `<div class="instr-icon">📱</div><div>Tap <strong>${commonButtonName.replace('<br>',' ')}</strong> for the <strong>${commonToneName}</strong> and <strong>${rareButtonName.replace('<br>',' ')}</strong> for the <strong>${rareToneName}</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>`;
+    introItems[0].innerHTML = `<div class="instr-icon">📱</div><div>Press <strong><span class="key-badge" id="intro-common-key">${kc}</span></strong> for the <strong>${commonToneName}</strong> and <strong><span class="key-badge" id="intro-rare-key">${kr}</span></strong> for the <strong>${rareToneName}</strong>.<br>If you do not hear a beep, <strong>do not press anything</strong>.</div>`;
   }
 
   const demoCommon = document.getElementById('btn-demo-common');
   const demoRare = document.getElementById('btn-demo-rare');
-  if (demoCommon) demoCommon.textContent = commonDemoName;
-  if (demoRare) demoRare.textContent = rareDemoName;
+  if (demoCommon) demoCommon.innerHTML = `<span class="sample-circle-key">${kc}</span><span class="sample-circle-label">${commonDemoName}</span>`;
+  if (demoRare) demoRare.innerHTML = `<span class="sample-circle-key">${kr}</span><span class="sample-circle-label">${rareDemoName}</span>`;
+  if (demoCommon) demoCommon.setAttribute('aria-label', `${kc}: ${commonDemoName}`);
+  if (demoRare) demoRare.setAttribute('aria-label', `${kr}: ${rareDemoName}`);
 
   const touchCommon = document.getElementById('touch-btn-common');
   const touchRare = document.getElementById('touch-btn-rare');
-  if (touchCommon) touchCommon.innerHTML = commonButtonName;
-  if (touchRare) touchRare.innerHTML = rareButtonName;
+  if (touchCommon) touchCommon.textContent = kc;
+  if (touchRare) touchRare.textContent = kr;
 }
 
 function isSkipKey(event) {
@@ -6034,8 +6127,8 @@ primeEmbeddedAudioLoad();
   <div id="touch-main-panel" class="touch-panel">
     <div id="touch-main-hint" class="touch-panel-hint"></div>
     <div class="touch-main-buttons">
-      <button type="button" class="touch-btn low" id="touch-btn-common">LOW<br>BEEP</button>
-      <button type="button" class="touch-btn high" id="touch-btn-rare">HIGH<br>BEEP</button>
+      <button type="button" class="touch-btn low" id="touch-btn-common">Q</button>
+      <button type="button" class="touch-btn high" id="touch-btn-rare">E</button>
     </div>
   </div>
   <div id="touch-quest-panel" class="touch-panel">
