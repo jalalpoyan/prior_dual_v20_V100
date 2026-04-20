@@ -1460,7 +1460,8 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 
 
 
-/* Desktop build marker — label removed */
+/* Desktop build marker */
+body.desktop-build::before{content:'DESKTOP VERSION';position:fixed;top:10px;right:12px;z-index:12;font:700 11px/1 Rajdhani,sans-serif;letter-spacing:1.8px;color:#0d1620;background:rgba(254,209,0,0.92);padding:6px 10px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
 
 </style>
 </head>
@@ -1937,7 +1938,7 @@ const CFG = {
   itiSec:            0.40,
   feedbackSec:       0.60,
   postRespWindowSec: 2.00,
-  confMaxSec:        0.65,
+  confMaxSec:        1.3,
   trainMinTrials:    40,
   trainMaxTrials:    120,
   trainAccThresh:    0.80,
@@ -1957,27 +1958,6 @@ const CFG = {
 };
 
 const APP_VERSION = 'prior-quest-web-v4-embedded-audio';
-
-// ── COUNTERBALANCING: frequency assignment ───────────────────────────────────
-// index.html passes ?v=1 or ?v=2 to alternate which frequency is common/rare
-// across participants, ruling out low-vs-high frequency processing confounds.
-//
-//  V1 (default): LOW freq = common  → 1200 Hz common,  [1697,2018,2400,2853] rare
-//  V2:           HIGH freq = common → 2400 Hz common,  [1697,1427,1200,1009] rare
-const COUNTERBALANCE_VERSION = (function(){
-  try {
-    const v = new URLSearchParams(window.location.search).get('v');
-    if (v === '2') {
-      CFG.commonHz   = 2400;
-      CFG.uncommonHz = [1697, 1427, 1200, 1009];
-      return 2;
-    }
-  } catch(e) {}
-  // Default / Version 1
-  CFG.commonHz   = 1200;
-  CFG.uncommonHz = [1697, 2018, 2400, 2853];
-  return 1;
-})();
 
 const QUEST_CFG = {
   audio: {
@@ -2134,7 +2114,7 @@ const ALLOW_TEST_SHORTCUTS = true;
 const ALLOW_ESCAPE_FINISH_SHORTCUT = false;
 const LEADERBOARD_STORAGE_KEY = 'prior_lb_live_20260413';
 const USED_PID_STORAGE_KEY = 'prior_used_pids_live_20260413';
-const PID_PATTERN = /^[A-Za-z0-9_ -]{3,30}$/;
+const PID_PATTERN = /^[A-Za-z0-9_-]{3,20}$/;
 try { localStorage.removeItem('prior_lb'); } catch (e) {}
 
 function normalizeParticipantId(pid){
@@ -2190,27 +2170,6 @@ function refreshIntroKeyLabels(){
   const rareEl = document.getElementById('intro-rare-key');
   if (commonEl) commonEl.textContent = kc;
   if (rareEl) rareEl.textContent = kr;
-
-  const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high frequency beep' : 'low frequency beep';
-  const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low frequency beep' : 'high frequency beep';
-  const commonButtonName = COUNTERBALANCE_VERSION === 2 ? 'HIGH FREQUENCY TONE' : 'LOW FREQUENCY TONE';
-  const rareButtonName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
-
-  const introTagline = document.querySelector('#screen-intro .tagline');
-  if (introTagline) introTagline.textContent = `Do you hear the ${commonToneName}, ${rareToneName}, or no beep?`;
-
-  const introItems = document.querySelectorAll('#screen-intro .instr-item');
-  if (introItems[0]) {
-    introItems[0].innerHTML = `<div class="instr-icon">⌨️</div><div>
-          Press <strong><span class="key-badge" id="intro-common-key">${kc}</span></strong> for the <strong>${commonToneName}</strong> and <strong><span class="key-badge" id="intro-rare-key">${kr}</span></strong> for the <strong>${rareToneName}</strong>.<br>
-          If you do not hear a beep, <strong>do not press anything</strong>.
-        </div>`;
-  }
-
-  const demoCommon = document.getElementById('btn-demo-common');
-  const demoRare = document.getElementById('btn-demo-rare');
-  if (demoCommon) demoCommon.textContent = commonButtonName;
-  if (demoRare) demoRare.textContent = rareButtonName;
 }
 
 function isSkipKey(event) {
@@ -2629,13 +2588,9 @@ document.getElementById('btn-setup-next').addEventListener('click', () => {
     errEl.textContent = 'Please complete sex and age before continuing.';
     return;
   }
-  if (parseInt(age, 10) < 18) {
-    errEl.textContent = 'You must be 18 or older to participate.';
-    return;
-  }
 
   if (pidRaw && !PID_PATTERN.test(pidRaw)) {
-    errEl.textContent = 'Participant ID must be 3–30 characters and may contain letters, numbers, spaces, hyphens, or underscores.';
+    errEl.textContent = 'Participant ID must be 3–20 characters and use only letters, numbers, hyphens, or underscores.';
     return;
   }
   if (pidRaw && isParticipantIdTaken(pidRaw)) {
@@ -2729,11 +2684,11 @@ function emphasizeAWSBasicPhrases(root){
   const replacements = [
     {
       pattern: /When\s+you\s+hit\s+Play,\s+you\s+will\s+hear\s+three\s+sounds\s+separated\s+by\s+silences?\.\s*Simply\s+judge\s+WHICH\s+SOUND\s+WAS\s+SOFTEST\s*\(quietest\)\s*--\s*1,\s*2,\s*or\s*3\?\s*Test\s+sounds\s+can\s+only\s+be\s+played\s+once!/gi,
-      replace: 'When you hit Play, you will hear three sounds separated by short pauses.\nSelect the softest sound: 1, 2, or 3.\nThe sounds can only be played once!'
+      replace: 'Press Play to hear three sounds.\nSelect the softest sound: 1, 2, or 3.\nThe sounds can only be played once!'
     },
     {
       pattern: /When\s+you\s+hit\s+Play,\s+you\s+will\s+hear\s+three\s+sounds\s+separated\s+by\s+silences?\./gi,
-      replace: 'When you hit Play, you will hear three sounds separated by short pauses.'
+      replace: 'Press Play to hear three sounds.'
     },
     {
       pattern: /Simply\s+judge\s+WHICH\s+SOUND\s+WAS\s+SOFTEST\s*\(quietest\)\s*--\s*1,\s*2,\s*or\s*3\?/gi,
@@ -2745,11 +2700,11 @@ function emphasizeAWSBasicPhrases(root){
     },
     {
       pattern: /Press\s+the\s+button,\s+then\s+turn\s+up\s+the\s+volume\s+on\s+your\s+computer\s+until\s+the\s+calibration\s+noise\s+is\s+at\s+a\s+loud\s+but\s+comfortable\s+level\.?/gi,
-      replace: "Press the 'play' button, then turn up the volume until it is at a loud but comfortable level."
+      replace: "Press the 'play' button, then turn up the volume on your computer until the noise is at a loud but comfortable level."
     },
     {
       pattern: /Press\s+the\s+button,\s+then\s+turn\s+up\s+the\s+volume\s+on\s+until\s+the\s+noise\s+is\s+at\s+a\s+loud\s+but\s+comfortable\s+level\.?/gi,
-      replace: "Press the 'play' button, then turn up the volume until it is at a loud but comfortable level."
+      replace: "Press the 'play' button, then turn up the volume on until the noise is at a loud but comfortable level."
     },
     {
       pattern: /Play\s+the\s+calibration\s+sound\s+as\s+many\s+times\s+as\s+you\s+like\.?/gi,
@@ -4888,8 +4843,6 @@ function buildRemoteSummaryRow(){
   return {
     uploaded_at: new Date().toISOString(),
     app_version: APP_VERSION,
-    counterbalance_version: COUNTERBALANCE_VERSION,
-    common_hz: CFG.commonHz,
     session_run_id: sessionRunId,
     participant_id: PID || '',
     participant_age: participantAge || '',
@@ -5276,7 +5229,7 @@ function buildQuestionnaireSummaryCSV(){
 
 function buildSessionSummaryCSV(){
   const cols = [
-    'ParticipantID','ExportedAt','AppVersion','CounterbalanceVersion','CommonHz','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
+    'ParticipantID','ExportedAt','AppVersion','KeyMapping','KeyCommon','KeyRare','AudioSampleRate',
     'PIS_ViewedAt','PIS_CompletedAt','Consent_ViewedAt','Consent_CompletedAt','ConsentDate','ConsentGiven',
     'AWSBasic_StartedAt','AWSBasic_CompletedAt','AWSBasic_DidPass','AWSBasic_SkippedForTesting','AWSBasic_TotalCorrect','AWSBasic_TotalTrials',
     'Threshold_ML','Threshold_75','Threshold_50','Threshold_25','QUEST_FitValid','Gamma_Fixed','FA_Rate_Observed',
@@ -5295,7 +5248,7 @@ function buildSessionSummaryCSV(){
     faRate_observed: questResults.faRate_observed
   } : {};
   const row = [
-    csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(COUNTERBALANCE_VERSION), csvVal(CFG.commonHz), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
+    csvVal(PID), csvVal(new Date().toISOString()), csvVal(APP_VERSION), csvVal(keyMapVal || ''), csvVal(KEY_COMMON), csvVal(KEY_RARE), csvVal(audioCtx ? audioCtx.sampleRate : ''),
     csvVal(pisData ? pisData.viewedAt : ''), csvVal(pisData ? pisData.completedAt : ''), csvVal(consentData ? consentData.viewedAt : ''), csvVal(consentData ? consentData.completedAt : ''), csvVal(consentData ? consentData.consentDate : ''), csvVal(consentData ? consentData.consentGiven : ''),
     csvVal(awsBasicResult ? awsBasicResult.startedAt : ''), csvVal(awsBasicResult ? awsBasicResult.completedAt : ''), csvVal(awsBasicResult ? awsBasicResult.didPass : ''), csvVal(awsBasicResult ? awsBasicResult.skippedForTesting : ''), csvVal(awsBasicResult ? awsBasicResult.totalCorrect : ''), csvVal(awsBasicResult ? awsBasicResult.totalTrials : ''),
     csvVal(thresholds.threshold_ML ?? ''), csvVal(thresholds.threshold_75 ?? snrHigh ?? ''), csvVal(thresholds.threshold_50 ?? snrMedium ?? ''), csvVal(thresholds.threshold_25 ?? snrLow ?? ''), csvVal(thresholds.fit_valid ?? ''), csvVal(thresholds.gamma_fixed ?? ''), csvVal(thresholds.faRate_observed ?? ''),
@@ -5315,11 +5268,6 @@ function buildSessionManifest(){
   return {
     app: 'The PRIOR Game',
     version: APP_VERSION,
-    counterbalance: {
-      version: COUNTERBALANCE_VERSION,
-      commonHz: CFG.commonHz,
-      uncommonHz: CFG.uncommonHz.slice()
-    },
     exportedAt: new Date().toISOString(),
     participant: {
       id: PID,
