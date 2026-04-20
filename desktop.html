@@ -1939,8 +1939,9 @@ const CFG = {
   feedbackSec:       0.60,
   postRespWindowSec: 2.00,
   confMaxSec:        1.3,
+  trainChunkTrials:  20,
   trainMinTrials:    20,
-  trainMaxTrials:    Infinity,
+  trainMaxTrials:    Number.MAX_SAFE_INTEGER,
   trainAccThresh:    0.85,
   trainSNR:          0,
   nMissions:         12,
@@ -1957,7 +1958,7 @@ const CFG = {
 
 };
 
-const APP_VERSION = 'prior-quest-web-v4-embedded-audio-train20-block20';
+const APP_VERSION = 'prior-quest-web-v4-embedded-audio';
 const BUILD_TYPE = 'desktop';
 
 // ── COUNTERBALANCING: frequency assignment ───────────────────────────────────
@@ -4301,12 +4302,11 @@ function drawHUD(){
   const bW=Math.min(260,W*0.22), bH=20, bX=20, bY=18;
   let progress, color, label;
   if(appState==='training'){
-    const blockSize = CFG.trainMinTrials;
-    const blockNum = Math.floor(nTrainDone / blockSize) + 1;
-    const blockTrial = (nTrainDone % blockSize) + 1;
-    progress = blockTrial / blockSize;
+    const chunkSize = CFG.trainChunkTrials || CFG.trainMinTrials;
+    const chunkDone = nTrainDone % chunkSize;
+    progress=Math.min(chunkDone/chunkSize,1);
     color='#3399ff';
-    label=`TRAIN B${blockNum}: ${blockTrial}/${blockSize}`;
+    label=`TRAIN: ${chunkDone} / ${chunkSize}`;
   } else {
     const tim=(testIdx%CFG.trialsPerMission)+1;
     progress=tim/CFG.trialsPerMission;
@@ -4587,15 +4587,14 @@ function finalizeTrial(){
 
 function advanceAfterTrial(){
   if(appState==='training'){
-    const blockSize = CFG.trainMinTrials;
-    if(nTrainDone >= blockSize && nTrainDone % blockSize === 0){
-      const recentBlock = trainHist.slice(-blockSize);
-      const acc = recentBlock.length ? recentBlock.reduce((a,b)=>a+b,0) / recentBlock.length : 0;
-      if(acc >= CFG.trainAccThresh){
-        showTrainProg(nTrainDone, acc * 100, ()=>finishTraining());
-        return;
-      }
-      showTrainProg(nTrainDone, acc * 100, ()=>startNextTrial());
+    const chunkSize = CFG.trainChunkTrials || CFG.trainMinTrials;
+    if(nTrainDone>=chunkSize && nTrainDone % chunkSize===0){
+      const window=trainHist.slice(-chunkSize);
+      const acc=window.length?window.reduce((a,b)=>a+b,0)/window.length:0;
+      showTrainProg(nTrainDone,acc*100,()=>{
+        if(acc>=CFG.trainAccThresh) finishTraining();
+        else startNextTrial();
+      });
       return;
     }
     startNextTrial();
@@ -4667,12 +4666,13 @@ function showMessage(title, subtitle, btnText, cb){
 }
 
 function finishTraining(){
-  const blockSize = CFG.trainMinTrials;
-  const recentBlock = trainHist.slice(-blockSize);
-  const acc = recentBlock.length ? recentBlock.reduce((a,b)=>a+b,0)/recentBlock.length*100 : 0;
+  const chunkSize = CFG.trainChunkTrials || CFG.trainMinTrials;
+  const window=trainHist.slice(-chunkSize);
+  const acc=window.length?window.reduce((a,b)=>a+b,0)/window.length*100:0;
+  const passed=acc>=CFG.trainAccThresh*100;
   showMessage(
-    '✓ TRAINING PASSED!',
-    `Accuracy: ${acc.toFixed(0)}% over the last ${blockSize} trials`,
+    passed?'✓ TRAINING PASSED!':'TRAINING COMPLETE',
+    `Accuracy: ${acc.toFixed(0)}%`,
     'Begin Test Phase →',
     ()=>showMessage('TEST PHASE BEGINS','Now the real challenge starts!','Start →',()=>{
       appState='test'; curMission=1; startNextTrial();
@@ -4681,12 +4681,11 @@ function finishTraining(){
 }
 
 function showTrainProg(nTrial, accPct, cb){
-  const blockSize = CFG.trainMinTrials;
-  const blockNum = Math.floor(nTrial / blockSize);
-  document.getElementById('tp-label').textContent  = `Training block ${blockNum} complete`;
+  const chunkSize = CFG.trainChunkTrials || CFG.trainMinTrials;
+  document.getElementById('tp-label').textContent  = `Training block complete — ${nTrial} trials finished`;
   document.getElementById('tp-acc').textContent    = `${accPct.toFixed(0)}%`;
   document.getElementById('tp-acc').style.color    = accPct>=CFG.trainAccThresh*100?'#22dd77':'#ff8800';
-  document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% in this ${blockSize}-trial block`;
+  document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% over last ${chunkSize} trials`;
   showScreen('trainProg');
   setTimeout(()=>{ showScreen(null); cb(); }, 2000);
 }
