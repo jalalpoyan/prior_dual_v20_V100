@@ -2133,25 +2133,25 @@ const CFG = {
   feedbackSec:       0.60,
   postRespWindowSec: 2.00,
   confMaxSec:        0.80,
-  trainMinTrials:    40,
-  trainMaxTrials:    120,
-  trainAccThresh:    0.80,
+  trainMinTrials:    20,
+  trainMaxTrials:    Infinity,
+  trainAccThresh:    0.85,
   trainSNR:          0,
   nMissions:         12,
-  trialsPerMission:  30,
+  trialsPerMission:  20,
   pointsPerCorrect:  1000,
   streakThresholds:  [3, 5, 10, 20, 50],
   streakMultipliers: [1.5, 2.0, 3.0, 5.0, 10.0],
   streakNames:       ['HOT STREAK!','ON FIRE!','UNSTOPPABLE!','LEGENDARY!','GODLIKE!'],
   missionRatios: [
-    [26,1,1,2],[14,4,4,8],[13,5,4,8],[10,4,4,12],
-    [9,5,4,12],[8,6,1,15],[8,7,0,15],[8,6,1,15],
-    [8,6,1,15],[8,6,1,15],[8,6,1,15],[8,6,1,15]
+    [17,1,1,1],[9,3,3,5],[5,4,4,7],[4,4,4,8],
+    [2,5,4,9],[2,5,4,9],[1,5,5,9],[1,5,5,9],
+    [1,5,5,9],[1,5,5,9],[1,5,5,9],[1,5,5,9]
   ]
 
 };
 
-const APP_VERSION = 'prior-quest-web-v4-embedded-audio';
+const APP_VERSION = 'prior-quest-web-v4-embedded-audio-train20-block20';
 const BUILD_TYPE = 'mobile';
 
 // ── COUNTERBALANCING: frequency assignment ───────────────────────────────────
@@ -4664,9 +4664,12 @@ function drawHUD(){
   const bW=Math.min(260,W*0.22), bH=20, bX=20, bY=18;
   let progress, color, label;
   if(appState==='training'){
-    progress=Math.min(nTrainDone/CFG.trainMinTrials,1);
+    const blockSize = CFG.trainMinTrials;
+    const blockNum = Math.floor(nTrainDone / blockSize) + 1;
+    const blockTrial = (nTrainDone % blockSize) + 1;
+    progress = blockTrial / blockSize;
     color='#3399ff';
-    label=`TRAIN: ${nTrainDone} / ${CFG.trainMinTrials}`;
+    label=`TRAIN B${blockNum}: ${blockTrial}/${blockSize}`;
   } else {
     const tim=(testIdx%CFG.trialsPerMission)+1;
     progress=tim/CFG.trialsPerMission;
@@ -4947,22 +4950,17 @@ function finalizeTrial(){
 
 function advanceAfterTrial(){
   if(appState==='training'){
-    if(nTrainDone>=CFG.trainMinTrials){
-      const w40=trainHist.slice(-40);
-      const acc=w40.reduce((a,b)=>a+b,0)/w40.length;
-      const triAfterMin=nTrainDone-CFG.trainMinTrials;
-      const doShowProg=triAfterMin%10===0||acc>=CFG.trainAccThresh;
-      if(acc>=CFG.trainAccThresh){
-        doShowProg? showTrainProg(nTrainDone,acc*100,()=>finishTraining()) : finishTraining();
+    const blockSize = CFG.trainMinTrials;
+    if(nTrainDone >= blockSize && nTrainDone % blockSize === 0){
+      const recentBlock = trainHist.slice(-blockSize);
+      const acc = recentBlock.length ? recentBlock.reduce((a,b)=>a+b,0) / recentBlock.length : 0;
+      if(acc >= CFG.trainAccThresh){
+        showTrainProg(nTrainDone, acc * 100, ()=>finishTraining());
         return;
       }
-      if(doShowProg){
-        showTrainProg(nTrainDone,acc*100,()=>{
-          if(nTrainDone>=CFG.trainMaxTrials) finishTraining(); else startNextTrial();
-        }); return;
-      }
+      showTrainProg(nTrainDone, acc * 100, ()=>startNextTrial());
+      return;
     }
-    if(nTrainDone>=CFG.trainMaxTrials){ finishTraining(); return; }
     startNextTrial();
   } else {
     curMission=Math.min(Math.floor(testIdx/CFG.trialsPerMission)+1, CFG.nMissions);
@@ -5032,12 +5030,12 @@ function showMessage(title, subtitle, btnText, cb){
 }
 
 function finishTraining(){
-  const w40=trainHist.slice(-40);
-  const acc=w40.length?w40.reduce((a,b)=>a+b,0)/w40.length*100:0;
-  const passed=nTrainDone<CFG.trainMaxTrials||acc>=CFG.trainAccThresh*100;
+  const blockSize = CFG.trainMinTrials;
+  const recentBlock = trainHist.slice(-blockSize);
+  const acc = recentBlock.length ? recentBlock.reduce((a,b)=>a+b,0)/recentBlock.length*100 : 0;
   showMessage(
-    passed?'✓ TRAINING PASSED!':'TRAINING COMPLETE',
-    `Accuracy: ${acc.toFixed(0)}%`,
+    '✓ TRAINING PASSED!',
+    `Accuracy: ${acc.toFixed(0)}% over the last ${blockSize} trials`,
     'Begin Test Phase →',
     ()=>showMessage('TEST PHASE BEGINS','Now the real challenge starts!','Start →',()=>{
       appState='test'; curMission=1; startNextTrial();
@@ -5049,10 +5047,12 @@ let trainProgTimeoutId = null;
 let pendingTrainProgCallback = null;
 
 function showTrainProg(nTrial, accPct, cb){
-  document.getElementById('tp-label').textContent  = `Training — trial ${nTrial}`;
+  const blockSize = CFG.trainMinTrials;
+  const blockNum = Math.floor(nTrial / blockSize);
+  document.getElementById('tp-label').textContent  = `Training block ${blockNum} complete`;
   document.getElementById('tp-acc').textContent    = `${accPct.toFixed(0)}%`;
   document.getElementById('tp-acc').style.color    = accPct>=CFG.trainAccThresh*100?'#22dd77':'#ff8800';
-  document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% over last 40 trials`;
+  document.getElementById('tp-target').textContent = `Target: ${(CFG.trainAccThresh*100).toFixed(0)}% in this ${blockSize}-trial block`;
   pendingTrainProgCallback = cb;
   showScreen('trainProg');
   if (trainProgTimeoutId) clearTimeout(trainProgTimeoutId);
