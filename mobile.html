@@ -1,4 +1,3 @@
-<!-- mobile-qe-rechecked-2026-04-21 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +10,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fixed;inset:0;background:#000;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fixed;inset:0;background:#000;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
 :root{--vv-left:0px;--vv-top:0px;--vv-width:100vw;--vv-height:100vh}
 
 #game-canvas{display:block;position:fixed;top:var(--vv-top);left:var(--vv-left);width:var(--vv-width);height:var(--vv-height);z-index:1}
@@ -25,7 +24,7 @@ html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fix
   background: #1a1a2e;
 }
 
-.screen{display:none;flex-direction:column;align-items:center;width:min(680px, calc(var(--vv-width) - 32px));max-width:calc(var(--vv-width) - 32px);padding:24px 0;gap:14px}
+.screen{display:none;flex-direction:column;align-items:center;width:min(680px,92vw);padding:24px 0;gap:14px}
 .screen.active{display:flex}
 
 /* Typography */
@@ -166,7 +165,7 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 
 
 /* Questionnaire screens */
-.questionnaire-screen{width:min(900px, calc(var(--vv-width) - 16px));max-width:calc(var(--vv-width) - 16px);max-height:calc(var(--vv-height) - 16px)}
+.questionnaire-screen{width:min(900px,94vw);max-height:94vh}
 .questionnaire-card{
   width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);
   border-radius:12px;padding:18px 22px;backdrop-filter:blur(4px)
@@ -2463,8 +2462,8 @@ function refreshIntroKeyLabels(){
 
   const commonToneName = COUNTERBALANCE_VERSION === 2 ? 'high frequency beep' : 'low frequency beep';
   const rareToneName = COUNTERBALANCE_VERSION === 2 ? 'low frequency beep' : 'high frequency beep';
-  const commonButtonName = COUNTERBALANCE_VERSION === 2 ? 'HIGH<br>BEEP' : 'LOW<br>BEEP';
-  const rareButtonName = COUNTERBALANCE_VERSION === 2 ? 'LOW<br>BEEP' : 'HIGH<br>BEEP';
+  const commonButtonName = 'Q';
+  const rareButtonName = 'E';
   const commonDemoName = COUNTERBALANCE_VERSION === 2 ? 'HIGH FREQUENCY TONE' : 'LOW FREQUENCY TONE';
   const rareDemoName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
 
@@ -2857,10 +2856,6 @@ function showScreen(name) {
   } else {
     ol.style.display = 'none';
   }
-  onResize();
-  requestAnimationFrame(onResize);
-  setTimeout(onResize, 60);
-  setTimeout(onResize, 180);
   updateOverallProgress(name);
   updateDevSkipButton();
 }
