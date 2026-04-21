@@ -2011,13 +2011,13 @@ button.btn-primary{ width: 100%; }
   <!-- ═══ INTRO SCREEN ═══ -->
   <div id="screen-intro" class="screen">
     <div class="logo" style="font-size:34px">THIS IS YOUR MISSION!</div>
-    <div class="tagline">Do you hear a low frequency beep, a high frequency beep, or no beep?</div>
+    <div class="tagline">Do you hear a beep? Use Q for one beep, E for the other, or no beep.</div>
     <div class="divider"></div>
     <div class="instr-list">
       <div class="instr-item">
         <div class="instr-icon">📱</div>
         <div>
-          Tap <strong>Q</strong> for the <strong>low frequency beep</strong> and <strong>E</strong> for the <strong>high frequency beep</strong>.<br>
+          Tap the <strong>Q</strong> circle on the left or the <strong>E</strong> circle on the right.<br>
           If you do not hear a beep, <strong>do not press anything</strong>.
         </div>
       </div>
@@ -2468,7 +2468,7 @@ function refreshIntroKeyLabels(){
   const rareDemoName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
 
   const introTagline = document.querySelector('#screen-intro .tagline');
-  if (introTagline) introTagline.textContent = `Do you hear a ${commonToneName}, a ${rareToneName}, or no beep?`;
+  if (introTagline) introTagline.textContent = 'Do you hear a beep? Use Q for one beep, E for the other, or no beep.';
 
   const introItems = document.querySelectorAll('#screen-intro .instr-item');
   if (introItems[0]) {
