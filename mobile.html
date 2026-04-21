@@ -2310,6 +2310,7 @@ let appState    = 'upload';
 let nTrainDone  = 0;
 let trainHist   = [];
 let testTypes   = [];
+let testPlan    = [];
 let testIdx     = 0;
 let curMission  = 1;
 let streak      = 0, maxStreak = 0;
@@ -3731,7 +3732,7 @@ refreshIntroKeyLabels();
 
 document.getElementById('btn-intro-start').addEventListener('click', () => {
   initAudio();
-  testTypes = buildTestTypes();
+  testPlan = buildBalancedTestPlan();
   showScreen(null);
   appState = 'training';
   startNextTrial();
@@ -3784,8 +3785,8 @@ function playDemoTone(hz) {
   src.connect(gain); gain.connect(audioCtx.destination); src.start();
 }
 
-function sampleBgSegment(durSec, rmsTarget, maxAbsTarget) {
-  const buf  = bgBuffers[Math.floor(Math.random()*bgBuffers.length)];
+
+function sampleBgSegmentFromBuffer(buf, durSec, rmsTarget, maxAbsTarget) {
   const fs   = audioCtx.sampleRate;
   const src  = buf.getChannelData(0);
   const nNeed= Math.round(durSec * fs);
@@ -3806,8 +3807,22 @@ function sampleBgSegment(durSec, rmsTarget, maxAbsTarget) {
   return {data:seg, name:buf._name||'?', startSec:st/fs};
 }
 
-function sampleBg() {
-  return sampleBgSegment(CFG.noiseDurSec, CFG.bgRmsTarget, CFG.bgMaxAbs);
+function getBgBufferByName(name) {
+  if (!name) return null;
+  for (let i = 0; i < bgBuffers.length; i++) {
+    if ((bgBuffers[i]._name || '') === name) return bgBuffers[i];
+  }
+  return null;
+}
+
+function sampleBgSegment(durSec, rmsTarget, maxAbsTarget, preferredName=null) {
+  let buf = getBgBufferByName(preferredName);
+  if (!buf) buf = bgBuffers[Math.floor(Math.random()*bgBuffers.length)];
+  return sampleBgSegmentFromBuffer(buf, durSec, rmsTarget, maxAbsTarget);
+}
+
+function sampleBg(preferredName=null) {
+  return sampleBgSegment(CFG.noiseDurSec, CFG.bgRmsTarget, CFG.bgMaxAbs, preferredName);
 }
 
 function scaleTone(toneData, noiseData, snrDB) {
@@ -3832,7 +3847,7 @@ function mixTone(noise, tone, onsetSec) {
 }
 
 function buildAudio(td) {
-  const bg=sampleBg();
+  const bg=sampleBg(td.assignedNoiseFile || null);
   td.noiseFile=bg.name; td.noiseStartSec=bg.startSec;
   let wave;
   if(td.isSignal){
@@ -3844,6 +3859,7 @@ function buildAudio(td) {
   abuf.getChannelData(0).set(wave);
   td.audioBuf=abuf;
 }
+
 
 function playAudio(abuf) {
   stopAudio();
@@ -4712,18 +4728,9 @@ function generateMainFigureDataURL() {
 // ═══════════════════════════════════════════════════════════════════
 // TRIAL GENERATION
 // ═══════════════════════════════════════════════════════════════════
+
 function buildTestTypes() {
-  let arr=[];
-  for(let m=0;m<CFG.nMissions;m++){
-    const r=CFG.missionRatios[m];
-    let ms=[];
-    for(let i=0;i<r[0];i++) ms.push(1);
-    for(let i=0;i<r[1];i++) ms.push(2);
-    for(let i=0;i<r[2];i++) ms.push(3);
-    for(let i=0;i<r[3];i++) ms.push(4);
-    shuffle(ms); arr=arr.concat(ms);
-  }
-  return arr;
+  return buildBalancedTestPlan();
 }
 
 function shuffle(a){
@@ -4731,6 +4738,109 @@ function shuffle(a){
     const j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
+}
+
+function balancedPool(values, count) {
+  const out=[];
+  if (!Array.isArray(values) || !values.length || count <= 0) return out;
+  const full = Math.floor(count / values.length);
+  const rem  = count % values.length;
+  for (let r = 0; r < full; r++) out.push(...values);
+  const extra = values.slice(); shuffle(extra);
+  for (let i = 0; i < rem; i++) out.push(extra[i]);
+  shuffle(out);
+  return out;
+}
+
+function buildBackgroundAssignment(totalCount) {
+  const names = (bgBuffers && bgBuffers.length ? bgBuffers : EMBEDDED_BG_WAVS).map(x => x._name || x.name).filter(Boolean);
+  return balancedPool(names, totalCount);
+}
+
+function buildSignalTemplatesForSNR(nTrials, snrLevel, detLevel) {
+  const combos = balancedPool(['COMMON_EARLY','COMMON_LATE','RARE_EARLY','RARE_LATE'], nTrials);
+  const earlyOnsets = balancedPool(CFG.allowedOnsetMs.filter(ms => (ms/1000) <= CFG.earlyThresholdSec).map(ms => ms/1000), combos.filter(c => c.endsWith('EARLY')).length);
+  const lateOnsets  = balancedPool(CFG.allowedOnsetMs.filter(ms => (ms/1000) > CFG.earlyThresholdSec && (ms/1000) <= CFG.noiseDurSec-CFG.toneDurSec).map(ms => ms/1000), combos.filter(c => c.endsWith('LATE')).length);
+  const rareHzPool  = balancedPool(CFG.uncommonHz.slice(), combos.filter(c => c.startsWith('RARE')).length);
+  let eIdx = 0, lIdx = 0, rIdx = 0;
+  return combos.map(combo => {
+    const isCommon = combo.startsWith('COMMON');
+    const isEarly  = combo.endsWith('EARLY');
+    const onset    = isEarly ? earlyOnsets[eIdx++] : lateOnsets[lIdx++];
+    return {
+      phase: 'test',
+      isSignal: true,
+      detLevel,
+      snrLevel,
+      onsetSec: onset,
+      isEarlyTone: isEarly,
+      targetClass: isCommon ? 'COMMON' : 'RARE',
+      carrierHz: isCommon ? CFG.commonHz : rareHzPool[rIdx++]
+    };
+  });
+}
+
+function buildBalancedTestPlan() {
+  const totalMainTrials = CFG.nMissions * CFG.trialsPerMission;
+  const signalByCode = {1:0,2:0,3:0};
+  for (let m = 0; m < CFG.nMissions; m++) {
+    const r = CFG.missionRatios[m];
+    signalByCode[1] += r[0];
+    signalByCode[2] += r[1];
+    signalByCode[3] += r[2];
+  }
+
+  const pools = {
+    1: buildSignalTemplatesForSNR(signalByCode[1], 'high', '75%'),
+    2: buildSignalTemplatesForSNR(signalByCode[2], 'medium', '50%'),
+    3: buildSignalTemplatesForSNR(signalByCode[3], 'low', '25%')
+  };
+  const bgPool = buildBackgroundAssignment(totalMainTrials);
+  let bgIdx = 0;
+  const plan = [];
+
+  for (let m = 0; m < CFG.nMissions; m++) {
+    const r = CFG.missionRatios[m];
+    const missionTrials = [];
+    [1,2,3].forEach(code => {
+      for (let i = 0; i < r[code-1]; i++) {
+        const base = pools[code].pop();
+        missionTrials.push({
+          phase: 'test',
+          mission: m + 1,
+          assignedNoiseFile: bgPool[bgIdx++],
+          isSignal: true,
+          detLevel: base.detLevel,
+          snrLevel: base.snrLevel,
+          markerOnsetSec: base.onsetSec,
+          toneOnsetSec: base.onsetSec,
+          isEarlyTone: base.isEarlyTone,
+          targetClass: base.targetClass,
+          carrierHz: base.carrierHz
+        });
+      }
+    });
+    for (let i = 0; i < r[3]; i++) {
+      missionTrials.push({
+        phase: 'test',
+        mission: m + 1,
+        assignedNoiseFile: bgPool[bgIdx++],
+        isSignal: false,
+        detLevel: '0%',
+        snrLevel: 'none',
+        markerOnsetSec: NaN,
+        toneOnsetSec: NaN,
+        isEarlyTone: false,
+        targetClass: 'NOSIGNAL',
+        carrierHz: NaN
+      });
+    }
+    shuffle(missionTrials);
+    missionTrials.forEach(td => plan.push(td));
+  }
+
+  plan.forEach((td, idx) => td.testIdx = idx);
+  return plan;
 }
 
 function randOnset(){
@@ -4753,28 +4863,21 @@ function makeTrainTD(){
 }
 
 function makeTestTD(idx){
-  const type=testTypes[idx];
-  const mNum=Math.min(Math.floor(idx/CFG.trialsPerMission)+1, CFG.nMissions);
-  const onset=randOnset();
-  const td={phase:'test', mission:mNum, testIdx:idx, trialNum:allTrials.length+1};
-  switch(type){
-    case 1:td.snrDB=snrHigh;  td.isSignal=true; td.detLevel='75%'; td.snrLevel='high';   break;
-    case 2:td.snrDB=snrMedium;td.isSignal=true; td.detLevel='50%'; td.snrLevel='medium'; break;
-    case 3:td.snrDB=snrLow;   td.isSignal=true; td.detLevel='25%'; td.snrLevel='low';    break;
-    case 4:td.snrDB=NaN;      td.isSignal=false;td.detLevel='0%';  td.snrLevel='none';   break;
+  const base = testPlan[idx] || buildBalancedTestPlan()[idx];
+  const td = Object.assign({}, base, {trialNum: allTrials.length+1, testIdx: idx});
+  switch(td.snrLevel){
+    case 'high':   td.snrDB=snrHigh;   td.detLevel='75%'; break;
+    case 'medium': td.snrDB=snrMedium; td.detLevel='50%'; break;
+    case 'low':    td.snrDB=snrLow;    td.detLevel='25%'; break;
+    case 'none':   td.snrDB=NaN;       td.detLevel='0%'; td.isSignal=false; break;
   }
-  td.markerOnsetSec=onset;
-  if(td.isSignal){
-    td.toneOnsetSec=onset; td.isEarlyTone=onset<=CFG.earlyThresholdSec;
-    const isC=Math.random()<CFG.pCommonGivenSignal;
-    td.targetClass=isC?'COMMON':'RARE';
-    td.carrierHz=isC?CFG.commonHz:CFG.uncommonHz[Math.floor(Math.random()*CFG.uncommonHz.length)];
-  } else {
+  if(!td.isSignal){
     td.targetClass='NOSIGNAL'; td.carrierHz=NaN;
     td.toneOnsetSec=NaN; td.isEarlyTone=false;
   }
   return td;
 }
+
 
 // ═══════════════════════════════════════════════════════════════════
 // SCORING
