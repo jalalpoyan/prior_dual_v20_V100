@@ -10,7 +10,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fixed;inset:0;background:#000;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fixed;inset:0;background:#000;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 :root{--vv-left:0px;--vv-top:0px;--vv-width:100vw;--vv-height:100vh}
 
 #game-canvas{display:block;position:fixed;top:var(--vv-top);left:var(--vv-left);width:var(--vv-width);height:var(--vv-height);z-index:1}
@@ -1553,7 +1553,7 @@ body.mobile-build #screen-quest-intro .logo{display:block !important;visibility:
 }
 
 /* Screens fill more width */
-.screen{ width: min(600px, 98vw); gap: 12px; padding: 12px 0 20px; }
+.screen{ width:min(600px, calc(var(--vv-width) - 16px)); max-width:calc(var(--vv-width) - 16px); gap:12px; padding:12px 0 20px; }
 
 /* Buttons: full-width, tall, rounded, no flash */
 .btn{
@@ -1603,7 +1603,7 @@ button.btn-primary{ width: 100%; }
 .doc-screen{ max-height: 96vh; }
 
 /* Progress bar: compact */
-#overall-progress{ padding: 7px 14px 8px; border-radius: 14px; width: min(98vw, calc(100vw - 16px)); }
+#overall-progress{ padding:7px 14px 8px; border-radius:14px; width:calc(var(--vv-width) - 16px); max-width:calc(var(--vv-width) - 16px); }
 #overall-progress-text{ font-size: 11px; }
 
 /* Setup */
@@ -6359,7 +6359,14 @@ primeEmbeddedAudioLoad();
   wrapQuestState('drawQuestQuestion', true);
   wrapQuestState('drawQuestMessage', false);
 
-  document.addEventListener('DOMContentLoaded', function(){
+  function settleMobileViewport(){
+  onResize();
+  requestAnimationFrame(() => requestAnimationFrame(onResize));
+}
+window.addEventListener('load', settleMobileViewport);
+setTimeout(settleMobileViewport, 120);
+
+document.addEventListener('DOMContentLoaded', function(){
     document.body.classList.add('mobile-build');
     refreshMobileCopy();
     touchEls.root = document.getElementById('touch-controls');
