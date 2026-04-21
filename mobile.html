@@ -2010,7 +2010,7 @@ button.btn-primary{ width: 100%; }
   <!-- ═══ INTRO SCREEN ═══ -->
   <div id="screen-intro" class="screen">
     <div class="logo" style="font-size:34px">THIS IS YOUR MISSION!</div>
-    <div class="tagline">Do you hear the low frequency beep, high frequency beep, or no beep?</div>
+    <div class="tagline">Do you hear a low frequency beep, a high frequency beep, or no beep?</div>
     <div class="divider"></div>
     <div class="instr-list">
       <div class="instr-item">
@@ -2031,7 +2031,7 @@ button.btn-primary{ width: 100%; }
 
       <div id="intro-key-text" class="intro-sample-plain">
         <div class="intro-sample-wrap">
-          <div class="intro-sample-hint">Play the sample tones below until you have a good feel for the sounds.</div>
+          <div class="intro-sample-hint"><u>Play the sample tones below</u> until you have a good feel for the sounds.</div>
           <div class="intro-sample-buttons">
             <button class="btn btn-secondary" id="btn-demo-common" type="button"><span class="sample-circle-key">Q</span><span class="sample-circle-label">Low frequency</span></button>
             <button class="btn btn-secondary" id="btn-demo-rare" type="button"><span class="sample-circle-key">E</span><span class="sample-circle-label">High frequency</span></button>
@@ -2467,7 +2467,7 @@ function refreshIntroKeyLabels(){
   const rareDemoName = COUNTERBALANCE_VERSION === 2 ? 'LOW FREQUENCY TONE' : 'HIGH FREQUENCY TONE';
 
   const introTagline = document.querySelector('#screen-intro .tagline');
-  if (introTagline) introTagline.textContent = `Do you hear the ${commonToneName}, ${rareToneName}, or no beep?`;
+  if (introTagline) introTagline.textContent = `Do you hear a ${commonToneName}, a ${rareToneName}, or no beep?`;
 
   const introItems = document.querySelectorAll('#screen-intro .instr-item');
   if (introItems[0]) {
@@ -3835,6 +3835,38 @@ function playAudio(abuf) {
 function stopAudio() {
   if(currentSrc){try{currentSrc.stop();}catch(e){} currentSrc=null;}
 }
+
+let pendingVisibilityTrialRestart = false;
+
+function handleTaskVisibilityInterrupt() {
+  stopAudio();
+  if (['training','test'].includes(appState) && TD) {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    keyIsHeld = false;
+    pendingVisibilityTrialRestart = true;
+  }
+}
+
+function handleReturnFromVisibilityInterrupt() {
+  if (!pendingVisibilityTrialRestart) return;
+  pendingVisibilityTrialRestart = false;
+  showMessage(
+    'Please stay on this page',
+    'You left the page during a trial, so this trial will restart.',
+    'Restart trial →',
+    () => { initAudio(); launchTrial(); }
+  );
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    handleTaskVisibilityInterrupt();
+  } else {
+    setTimeout(handleReturnFromVisibilityInterrupt, 0);
+  }
+});
+window.addEventListener('pagehide', handleTaskVisibilityInterrupt);
+window.addEventListener('pageshow', () => { setTimeout(handleReturnFromVisibilityInterrupt, 0); });
 
 function getAudioVisualLatencyCompSec() {
   if (!audioCtx) return 0;
