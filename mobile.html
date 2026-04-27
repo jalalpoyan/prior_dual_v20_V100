@@ -1799,17 +1799,30 @@ button.btn-primary{ width: 100%; }
 
 /* Cambridge logo on mobile consent form */
 #screen-consent .consent-doc-header{
-  text-align:center;
+  text-align:left;
 }
 #screen-consent .doc-page-consent img.consent-cambridge-logo{
   display:block !important;
-  width:min(220px,68%);
+  width:min(180px,46%);
   height:auto;
-  margin:0 auto 18px;
+  margin:0 0 18px 0;
 }
 #screen-consent .consent-doc-header h2,
 #screen-consent .consent-doc-header p{
   text-align:left;
+}
+#screen-consent .consent-doc-contact{
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:12px;
+  background:#eef3f8;
+  border:1px solid rgba(18,31,46,0.10);
+  color:#243444;
+  font-size:14px;
+  line-height:1.55;
+}
+#screen-consent .consent-doc-contact strong{
+  color:#12202f;
 }
 
 </style>
@@ -1858,6 +1871,7 @@ button.btn-primary{ width: 100%; }
               <img class="consent-cambridge-logo" src="assets/Logo/secondary-logo-stacked.png" alt="University of Cambridge logo" loading="lazy" decoding="async">
               <h2>Consent Form</h2>
               <p>Please tick each statement below. You can tap anywhere on a statement row, not only the checkbox.</p>
+              <p class="consent-doc-contact"><strong>Contact:</strong> Yusef Jalal Poyan, yjp24@cam.ac.uk or +45 81748591</p>
             </div>
             <div class="consent-doc-rows">
             <label class="consent-document-row" aria-label="Consent item 1">
