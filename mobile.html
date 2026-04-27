@@ -27,6 +27,64 @@ html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;position:fix
 .screen{display:none;flex-direction:column;align-items:center;width:min(680px,92vw);padding:24px 0;gap:14px}
 .screen.active{display:flex}
 
+
+/* Consent screen Cambridge logo/contact header — mobile only.
+   Uses the official stacked logo file from assets/Logo. */
+#screen-consent .consent-official-header{
+  width:100%;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:14px;
+  padding:14px 16px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.04);
+}
+#screen-consent .consent-official-logo{
+  width:96px;
+  min-width:96px;
+  height:auto;
+  display:block;
+  object-fit:contain;
+}
+#screen-consent .consent-official-copy{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  min-width:0;
+  padding-top:2px;
+}
+#screen-consent .consent-official-title{
+  font-size:15px;
+  line-height:1.2;
+  font-weight:800;
+  color:#f4f7ff;
+}
+#screen-consent .consent-official-line{
+  font-size:13px;
+  line-height:1.4;
+  color:#dbe6ff;
+  word-break:break-word;
+}
+#screen-consent .consent-official-line a{
+  color:#9fd1ff;
+  text-decoration:underline;
+}
+@media (max-width:560px){
+  #screen-consent .consent-official-header{
+    gap:12px;
+    padding:12px;
+  }
+  #screen-consent .consent-official-logo{
+    width:86px;
+    min-width:86px;
+  }
+  #screen-consent .consent-official-line{
+    font-size:12.5px;
+  }
+}
+
 /* Typography */
 .logo{font-size:clamp(32px,6vw,58px);font-weight:700;letter-spacing:3px;color:#e8f4f8;font-family:'Share Tech Mono',monospace}
 .logo span{color:#00d4ff}
@@ -1834,6 +1892,22 @@ button.btn-primary{ width: 100%; }
       <div class="doc-window-bar">
         <div><strong>Consent Form</strong></div>
       </div>
+
+      <div class="consent-official-header">
+        <img
+          class="consent-official-logo"
+          src="assets/Logo/secondary-logo-stacked.png"
+          alt="University of Cambridge"
+          onerror="this.onerror=null;this.src='assets/Logo/secondary-logo-stacked';"
+          loading="lazy"
+          decoding="async">
+        <div class="consent-official-copy">
+          <div class="consent-official-title">University of Cambridge</div>
+          <div class="consent-official-line">Contact: Yusef Jalal Poyan, <a href="mailto:yjp24@cam.ac.uk">yjp24@cam.ac.uk</a> or +45 81748591</div>
+          <div class="consent-official-line">v1.0, dated 13 April 2026</div>
+        </div>
+      </div>
+
       <div class="doc-window">
         <div class="doc-page doc-page-consent">
           <img src="assets/docs/consent_page_1.png" alt="Consent Form page 1" loading="lazy" decoding="async">
