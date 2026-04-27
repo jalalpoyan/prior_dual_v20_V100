@@ -2324,6 +2324,10 @@ let questRunning = false;
 let questAbortFlag = false;
 let questSkipRequested = false;
 let questEscapeHandler = null;
+let questPausedFlag = false;
+let questInterruptedFlag = false;
+let questInterruptionReason = '';
+let questAudioWatchdogTimer = null;
 const TEST_SKIP_THRESHOLDS = { high: 10, medium: 5, low: 0, ml: 5 };
 
 const LSHS_QUESTIONS = [
@@ -2534,6 +2538,8 @@ function skipQuestForTesting(skipQuestionnairesToo = false) {
   //    finally-block can release any remaining resources cleanly.
   questRunning    = false;
   questAbortFlag  = true;
+  questPausedFlag = false;
+  questInterruptedFlag = false;
   questResults = buildSkippedQuestResults();
   snrHigh = questResults.threshold_75;
   snrMedium = questResults.threshold_50;
@@ -3838,15 +3844,49 @@ function stopAudio() {
   if(currentSrc){try{currentSrc.stop();}catch(e){} currentSrc=null;}
 }
 
-let pendingVisibilityTrialRestart = false;
 
-function handleTaskVisibilityInterrupt() {
+let pendingVisibilityTrialRestart = false;
+function delayMs(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function markQuestTrialInterrupted(reason = 'audio/visibility interruption') {
+  if (!questRunning || questAbortFlag) return;
+  questPausedFlag = true;
+  questInterruptedFlag = true;
+  questInterruptionReason = reason;
   stopAudio();
-  if (['training','test'].includes(appState) && TD) {
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    keyIsHeld = false;
-    pendingVisibilityTrialRestart = true;
-  }
+  try {
+    drawQuestMessage([
+      'Audio interrupted',
+      'Tap/click or press any key to repeat this QUEST trial.'
+    ]);
+  } catch (e) {}
+}
+
+function waitForQuestResumeGesture(timeoutMs = 650) {
+  return new Promise(resolve => {
+    let done = false;
+    const cleanup = () => {
+      document.removeEventListener('pointerdown', onGesture, true);
+      document.removeEventListener('touchstart', onGesture, true);
+      document.removeEventListener('mousedown', onGesture, true);
+      document.removeEventListener('keydown', onGesture, true);
+      clearTimeout(timer);
+    };
+    const finish = () => {
+      if (done) return;
+      done = true;
+      cleanup();
+      resolve();
+    };
+    const onGesture = () => finish();
+    const timer = setTimeout(finish, timeoutMs);
+    document.addEventListener('pointerdown', onGesture, true);
+    document.addEventListener('touchstart', onGesture, true);
+    document.addEventListener('mousedown', onGesture, true);
+    document.addEventListener('keydown', onGesture, true);
+  });
 }
 
 async function unlockAudioAfterReturn() {
@@ -3863,10 +3903,81 @@ async function unlockAudioAfterReturn() {
       silentSrc.start();
     } catch (e) {}
   }
-  await new Promise(resolve => setTimeout(resolve, 60));
+  await delayMs(60);
+}
+
+async function waitForQuestResumeAfterInterruption() {
+  if (!questPausedFlag && !questInterruptedFlag) return;
+  stopAudio();
+  try {
+    drawQuestMessage([
+      'Audio interrupted',
+      'Tap/click or press any key to repeat this QUEST trial.'
+    ]);
+  } catch (e) {}
+
+  while (!questAbortFlag) {
+    if (document.hidden) {
+      await delayMs(120);
+      continue;
+    }
+
+    await unlockAudioAfterReturn();
+    if (audioCtx && audioCtx.state === 'running') {
+      questPausedFlag = false;
+      return;
+    }
+
+    await waitForQuestResumeGesture(650);
+  }
+  throw new Error('QUEST_ABORT');
+}
+
+function consumeQuestInterruption() {
+  if (!questInterruptedFlag) return false;
+  questInterruptedFlag = false;
+  questInterruptionReason = '';
+  return true;
+}
+
+function startQuestAudioWatchdog() {
+  stopQuestAudioWatchdog();
+  questAudioWatchdogTimer = setInterval(() => {
+    if (!questRunning || questAbortFlag || questPausedFlag) return;
+    if (audioCtx && audioCtx.state && audioCtx.state !== 'running') {
+      markQuestTrialInterrupted('AudioContext ' + audioCtx.state);
+    }
+  }, 250);
+}
+
+function stopQuestAudioWatchdog() {
+  if (questAudioWatchdogTimer) clearInterval(questAudioWatchdogTimer);
+  questAudioWatchdogTimer = null;
+}
+
+function handleTaskVisibilityInterrupt() {
+  stopAudio();
+  if (questRunning) {
+    markQuestTrialInterrupted(document.hidden ? 'page hidden' : 'page/window interrupted');
+    return;
+  }
+  if (['training','test'].includes(appState) && TD) {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    keyIsHeld = false;
+    pendingVisibilityTrialRestart = true;
+  }
 }
 
 function handleReturnFromVisibilityInterrupt() {
+  if (questPausedFlag || questInterruptedFlag) {
+    try {
+      drawQuestMessage([
+        'Audio interrupted',
+        'Tap/click or press any key to repeat this QUEST trial.'
+      ]);
+    } catch (e) {}
+    return;
+  }
   if (!pendingVisibilityTrialRestart) return;
   pendingVisibilityTrialRestart = false;
   showMessage(
@@ -3890,6 +4001,11 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', handleTaskVisibilityInterrupt);
 window.addEventListener('pageshow', () => { setTimeout(handleReturnFromVisibilityInterrupt, 0); });
+window.addEventListener('blur', () => {
+  if (questRunning || ['training','test'].includes(appState)) handleTaskVisibilityInterrupt();
+});
+window.addEventListener('focus', () => { setTimeout(handleReturnFromVisibilityInterrupt, 0); });
+
 
 function getAudioVisualLatencyCompSec() {
   if (!audioCtx) return 0;
@@ -4062,7 +4178,24 @@ async function sleepWithQuestAbort(ms) {
   const start = performance.now();
   while (performance.now() - start < ms) {
     if (questAbortFlag) throw new Error('QUEST_ABORT');
-    await new Promise(r => setTimeout(r, 10));
+    if (questPausedFlag || questInterruptedFlag) {
+      await waitForQuestResumeAfterInterruption();
+    }
+    await delayMs(10);
+  }
+}
+
+async function waitForQuestResponseOrInterrupt(collector) {
+  while (true) {
+    if (questAbortFlag) throw new Error('QUEST_ABORT');
+    if (questPausedFlag || questInterruptedFlag) {
+      collector.dispose();
+      await waitForQuestResumeAfterInterruption();
+      return { interrupted: true, response: null };
+    }
+    const resp = collector.getResult();
+    if (resp) return { interrupted: false, response: resp };
+    await delayMs(10);
   }
 }
 
@@ -4243,8 +4376,12 @@ function updateQuestSetupFields(results) {
 }
 
 async function runQuestProcedure() {
-  initAudio();
+  await unlockAudioAfterReturn();
   questRunning = true;
+  questPausedFlag = false;
+  questInterruptedFlag = false;
+  questInterruptionReason = '';
+  startQuestAudioWatchdog();
   showScreen(null);
   drawQuestMessage(['Initializing QUEST…', `pThreshold = ${QUEST_CFG.quest.pThreshold.toFixed(4)}`]);
 
@@ -4267,54 +4404,91 @@ async function runQuestProcedure() {
         if (QUEST_CFG.quest.jitterDB > 0) tTest += (Math.random() * 2 - 1) * QUEST_CFG.quest.jitterDB;
         tTest = Math.max(QUEST_CFG.quest.minIntensity, Math.min(QUEST_CFG.quest.maxIntensity, tTest));
         const isCatch = Math.random() < QUEST_CFG.quest.catchRate;
-        const sig = buildQuestSignal(tTest, isCatch);
 
-        drawQuestFixation(trialCount, totalTrials);
-        await sleepWithQuestAbort((QUEST_CFG.timing.fixationMin + Math.random() * (QUEST_CFG.timing.fixationMax - QUEST_CFG.timing.fixationMin)) * 1000);
+        let trialCompleted = false;
+        while (!trialCompleted) {
+          questInterruptedFlag = false;
+          questPausedFlag = false;
+          questInterruptionReason = '';
 
-        drawQuestListening(trialCount, totalTrials);
-        const questRespStart = performance.now();
-        const questRespCollector = createQuestResponseCollector(questRespStart);
-        playAudio(sig.audioBuf);
-
-        let resp = null;
-        const listenStart = performance.now();
-        while (performance.now() - listenStart < QUEST_CFG.audio.noiseDuration * 1000 + 60) {
-          if (questAbortFlag) {
-            questRespCollector.dispose();
-            throw new Error('QUEST_ABORT');
+          if (document.hidden) {
+            markQuestTrialInterrupted('page hidden before QUEST trial');
+            await waitForQuestResumeAfterInterruption();
+            continue;
           }
-          resp = questRespCollector.getResult();
-          if (resp) break;
-          await new Promise(r => setTimeout(r, 10));
+
+          await unlockAudioAfterReturn();
+          if (audioCtx && audioCtx.state !== 'running') {
+            markQuestTrialInterrupted('AudioContext ' + audioCtx.state);
+            await waitForQuestResumeAfterInterruption();
+            continue;
+          }
+
+          const sig = buildQuestSignal(tTest, isCatch);
+
+          drawQuestFixation(trialCount, totalTrials);
+          await sleepWithQuestAbort((QUEST_CFG.timing.fixationMin + Math.random() * (QUEST_CFG.timing.fixationMax - QUEST_CFG.timing.fixationMin)) * 1000);
+          if (consumeQuestInterruption()) continue;
+
+          drawQuestListening(trialCount, totalTrials);
+          const questRespStart = performance.now();
+          const questRespCollector = createQuestResponseCollector(questRespStart);
+          playAudio(sig.audioBuf);
+
+          let resp = null;
+          const listenStart = performance.now();
+          while (performance.now() - listenStart < QUEST_CFG.audio.noiseDuration * 1000 + 60) {
+            if (questAbortFlag) {
+              questRespCollector.dispose();
+              throw new Error('QUEST_ABORT');
+            }
+            if (questPausedFlag || questInterruptedFlag) {
+              questRespCollector.dispose();
+              stopAudio();
+              await waitForQuestResumeAfterInterruption();
+              break;
+            }
+            resp = questRespCollector.getResult();
+            if (resp) break;
+            await delayMs(10);
+          }
+          stopAudio();
+          if (consumeQuestInterruption()) continue;
+
+          if (!resp) {
+            drawQuestQuestion(trialCount, totalTrials);
+            const waitResult = await waitForQuestResponseOrInterrupt(questRespCollector);
+            if (waitResult.interrupted) continue;
+            resp = waitResult.response;
+          }
+          questRespCollector.dispose();
+
+          if (resp.response === -2 || questAbortFlag) throw new Error('QUEST_ABORT');
+
+          if (!isCatch) {
+            questUpdate(qCurrent, tTest, resp.response);
+            if (staircaseNum === 1) q1.pdf = qCurrent.pdf.slice();
+            else q2.pdf = qCurrent.pdf.slice();
+          }
+
+          data.intensities.push(isCatch ? NaN : tTest);
+          data.responses.push(resp.response);
+          data.RTs.push(resp.rt);
+          data.staircase.push(staircaseNum);
+          data.trial_number.push(trialCount);
+          data.timestamps.push((performance.now() - startPerf) / 1000);
+          data.isCatch.push(isCatch ? 1 : 0);
+          data.noiseFiles.push(sig.noiseFile);
+          data.noiseStartSec.push(sig.noiseStartSec);
+
+          trialCompleted = true;
         }
-        stopAudio();
-
-        if (!resp) {
-          drawQuestQuestion(trialCount, totalTrials);
-          resp = await questRespCollector.wait();
-        }
-        questRespCollector.dispose();
-
-        if (resp.response === -2 || questAbortFlag) throw new Error('QUEST_ABORT');
-
-        if (!isCatch) {
-          questUpdate(qCurrent, tTest, resp.response);
-          if (staircaseNum === 1) q1.pdf = qCurrent.pdf.slice();
-          else q2.pdf = qCurrent.pdf.slice();
-        }
-
-        data.intensities.push(isCatch ? NaN : tTest);
-        data.responses.push(resp.response);
-        data.RTs.push(resp.rt);
-        data.staircase.push(staircaseNum);
-        data.trial_number.push(trialCount);
-        data.timestamps.push((performance.now() - startPerf) / 1000);
-        data.isCatch.push(isCatch ? 1 : 0);
-        data.noiseFiles.push(sig.noiseFile);
-        data.noiseStartSec.push(sig.noiseStartSec);
 
         await sleepWithQuestAbort(QUEST_CFG.timing.iti * 1000);
+        if (consumeQuestInterruption()) {
+          // Interruption during ITI does not invalidate the just-recorded response.
+          await unlockAudioAfterReturn();
+        }
       }
     }
 
@@ -4375,7 +4549,7 @@ async function runQuestProcedure() {
       config: JSON.parse(JSON.stringify(QUEST_CFG)),
       unbounded1,
       unbounded2,
-      audioSampleRate: audioCtx.sampleRate
+      audioSampleRate: audioCtx ? audioCtx.sampleRate : null
     };
     delete questResults.fit_params.func;
 
@@ -4395,7 +4569,11 @@ async function runQuestProcedure() {
       throw err;
     }
   } finally {
+    stopQuestAudioWatchdog();
     detachQuestEscapeHandler();
+    questPausedFlag = false;
+    questInterruptedFlag = false;
+    questInterruptionReason = '';
     questRunning = false;
   }
 }
@@ -6318,7 +6496,7 @@ primeEmbeddedAudioLoad();
   function updateTouchPanels(){
     const overlayHidden = ol.style.display === 'none';
     const showMain = overlayHidden && ['training','test'].includes(appState) && ['playing','post_resp','confidence'].includes(tsState);
-    const showQuest = overlayHidden && !!questRunning;
+    const showQuest = overlayHidden && !!questRunning && !questPausedFlag;
     if (!touchEls.root) return;
     touchEls.root.classList.toggle('visible', showMain || showQuest);
     touchEls.root.setAttribute('aria-hidden', showMain || showQuest ? 'false' : 'true');
@@ -6436,7 +6614,7 @@ primeEmbeddedAudioLoad();
 
   function submitQuestTouchResponse(value, evt){
     if (evt) { evt.preventDefault(); evt.stopPropagation(); }
-    if (!questRunning || !questTouchActive) return false;
+    if (!questRunning || questPausedFlag || !questTouchActive) return false;
     activeQuestCollectors.forEach(api => api.inject(value));
     return false;
   }
