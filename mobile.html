@@ -1796,6 +1796,22 @@ button.btn-primary{ width: 100%; }
   #screen-intro .sample-circle-label{font-size:14px; max-width:10ch;}
 }
 
+
+/* Cambridge logo on mobile consent form */
+#screen-consent .consent-doc-header{
+  text-align:center;
+}
+#screen-consent .doc-page-consent img.consent-cambridge-logo{
+  display:block !important;
+  width:min(220px,68%);
+  height:auto;
+  margin:0 auto 18px;
+}
+#screen-consent .consent-doc-header h2,
+#screen-consent .consent-doc-header p{
+  text-align:left;
+}
+
 </style>
 </head>
 <body>
@@ -1839,6 +1855,7 @@ button.btn-primary{ width: 100%; }
         <div class="doc-page doc-page-consent">
           <div class="consent-doc-content">
             <div class="consent-doc-header">
+              <img class="consent-cambridge-logo" src="assets/Logo/secondary-logo-stacked.png" alt="University of Cambridge logo" loading="lazy" decoding="async">
               <h2>Consent Form</h2>
               <p>Please tick each statement below. You can tap anywhere on a statement row, not only the checkbox.</p>
             </div>
