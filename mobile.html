@@ -760,61 +760,62 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
 .consent-toggle-row{display:none}
 
 /* Mobile embedded consent document: large clickable rows, no duplicate checklist */
-/* Mobile consent: show the official PNG and use large overlay tap zones */
 #screen-consent .doc-page-consent{
-  position:relative;
-  padding:0;
-  background:#fff;
-  color:#1c2430;
-  border-radius:10px;
-  overflow:visible;
+  padding:22px;background:#fff;color:#1c2430;border-radius:10px;overflow:visible
 }
-#screen-consent .doc-page-consent img{
-  display:block !important;
-  width:100%;
-  height:auto;
-}
+#screen-consent .doc-page-consent img,
 #screen-consent .doc-page-consent .consent-box{
-  display:block !important;
-  width:72px;
-  height:58px;
-  transform:translate(-50%,-50%);
-  border-radius:12px;
-  background:rgba(15,107,255,0.02);
-  -webkit-tap-highlight-color:rgba(15,107,255,0.18);
+  display:none !important
 }
-#screen-consent .doc-page-consent .consent-box span{
-  inset:50% auto auto 50%;
-  width:30px;
-  height:30px;
-  transform:translate(-50%,-50%);
-  background:rgba(255,255,255,0.78);
-  border:2px solid rgba(21,53,88,0.65);
-  border-radius:5px;
-  box-shadow:0 0 0 8px rgba(255,255,255,0.35);
+#screen-consent .consent-doc-content{
+  width:100%;max-width:940px;margin:0 auto
 }
-#screen-consent .doc-page-consent .consent-box input:checked + span{
-  background:#eaf4ff;
-  border-color:#153558;
+#screen-consent .consent-doc-header{
+  margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(18,31,46,0.12)
 }
-#screen-consent .doc-page-consent .consent-box input:checked + span::before{
-  content:'';
-  position:absolute;
-  left:50%;
-  top:47%;
-  width:10px;
-  height:20px;
-  border-right:4px solid #153558;
-  border-bottom:4px solid #153558;
-  transform:translate(-50%,-58%) rotate(38deg);
-  transform-origin:center;
+#screen-consent .consent-doc-header h2{
+  margin:0 0 6px;font-size:22px;line-height:1.25;color:#12202f;font-weight:800
 }
-#screen-consent .consent-toggle-row{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-top:6px;
+#screen-consent .consent-doc-header p{
+  margin:0;font-size:15px;line-height:1.55;color:#405060
 }
+#screen-consent .consent-doc-rows{
+  display:flex;flex-direction:column;gap:10px
+}
+#screen-consent .consent-document-row{
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  width:100%;min-height:64px;padding:14px 16px;border-radius:12px;
+  border:2px solid rgba(18,31,46,0.12);background:rgba(20,30,45,0.035);
+  cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,212,255,0.18);
+  user-select:none;-webkit-user-select:none
+}
+#screen-consent .consent-document-row:active{transform:scale(0.99)}
+#screen-consent .consent-document-row:has(input:checked){
+  border-color:#0f6bff;background:rgba(15,107,255,0.08)
+}
+#screen-consent .consent-document-text{
+  display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;
+  font-size:16px;line-height:1.45;font-weight:700;color:#243444
+}
+#screen-consent .consent-document-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:999px;background:#eef3f8;color:#12202f;
+  font-size:13px;font-weight:800;line-height:1;flex:0 0 28px
+}
+#screen-consent .consent-document-check{
+  display:flex;align-items:center;justify-content:center;min-width:42px
+}
+#screen-consent .consent-document-check input{
+  width:34px;height:34px;margin:0;accent-color:#0f6bff;cursor:pointer
+}
+#screen-consent .consent-toggle-inline{
+  position:static !important;left:auto !important;top:auto !important;transform:none !important;
+  margin:16px 0 0 auto;display:inline-flex;align-items:center;gap:10px;
+  padding:12px 16px;border-radius:999px;background:#eef3f8;color:#153558;
+  box-shadow:none;font-size:14px;font-family:'Share Tech Mono',monospace;white-space:nowrap
+}
+#screen-consent .consent-toggle-inline input{width:24px;height:24px;accent-color:#0f6bff;cursor:pointer}
+.consent-toggle-row{display:none}
 
 
 /* Larger headphone check text */
@@ -1836,64 +1837,102 @@ button.btn-primary{ width: 100%; }
       </div>
       <div class="doc-window">
         <div class="doc-page doc-page-consent">
-          <img src="assets/docs/consent_page_1.png" alt="Consent Form page 1" loading="lazy" decoding="async">
-
-          <!-- Large mobile-friendly tap zones aligned to the tick column of the consent PNG.
-               The participant sees the real consent document, but can tap a much larger
-               area than the tiny printed checkbox. -->
-          <label class="consent-box" style="left:93.0%;top:22.85%" aria-label="Consent item 1">
-            <input type="checkbox" class="consent-check" data-consent-index="1" data-statement="I have read and understood the Participant Information Sheet for this study."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:26.45%" aria-label="Consent item 2">
-            <input type="checkbox" class="consent-check" data-consent-index="2" data-statement="I have had the opportunity to ask questions and have received satisfactory answers."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:31.20%" aria-label="Consent item 3">
-            <input type="checkbox" class="consent-check" data-consent-index="3" data-statement="I understand that my participation is entirely voluntary and that I may withdraw at any time without giving a reason and without penalty."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:37.25%" aria-label="Consent item 4">
-            <input type="checkbox" class="consent-check" data-consent-index="4" data-statement="I understand that, once I have completed the main parts of the study, my data will be uploaded and anonymised as part of the study completion process. After anonymisation, it will no longer be possible to identify, retrieve, or remove my individual data."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:45.15%" aria-label="Consent item 5">
-            <input type="checkbox" class="consent-check" data-consent-index="5" data-statement="I understand that no directly identifying information will be linked to my research data."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:50.20%" aria-label="Consent item 6">
-            <input type="checkbox" class="consent-check" data-consent-index="6" data-statement="I understand that fully anonymised data gathered in this study may be stored securely, used for future research, and may be shared in an open-access research repository."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:56.60%" aria-label="Consent item 7">
-            <input type="checkbox" class="consent-check" data-consent-index="7" data-statement="I understand that the questionnaire used in this study is a research instrument used to measure individual differences and not a diagnostic tool."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:63.05%" aria-label="Consent item 8">
-            <input type="checkbox" class="consent-check" data-consent-index="8" data-statement="I confirm that I am aged 18 years or over, am able to complete the task in English, and do not have significant hearing or vision difficulties that would prevent me from completing the task."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:70.60%" aria-label="Consent item 9">
-            <input type="checkbox" class="consent-check" data-consent-index="9" data-statement="I confirm that I do not have a history of neurological disorder, or head injury resulting in loss of consciousness or persistent deficits, do not have a self-reported diagnosis of epilepsy, schizophrenia spectrum disorder, or another psychotic disorder."><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:78.40%" aria-label="Consent item 10">
-            <input type="checkbox" class="consent-check" data-consent-index="10" data-statement="I confirm that I am not currently under the influence of alcohol or recreational drugs"><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:83.70%" aria-label="Consent item 11">
-            <input type="checkbox" class="consent-check" data-consent-index="11" data-statement="I understand how to raise a concern or make a complaint"><span></span>
-          </label>
-          <label class="consent-box" style="left:93.0%;top:87.25%" aria-label="Consent item 12">
-            <input type="checkbox" class="consent-check" data-consent-index="12" data-statement="I agree to take part in this study."><span></span>
-          </label>
+          <div class="consent-doc-content">
+            <div class="consent-doc-header">
+              <h2>Consent Form</h2>
+              <p>Please tick each statement below. You can tap anywhere on a statement row, not only the checkbox.</p>
+            </div>
+            <div class="consent-doc-rows">
+            <label class="consent-document-row" aria-label="Consent item 1">
+              <span class="consent-document-text"><span class="consent-document-num">1</span><span>I have read and understood the Participant Information Sheet for this study.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="1" data-statement="I have read and understood the Participant Information Sheet for this study.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 2">
+              <span class="consent-document-text"><span class="consent-document-num">2</span><span>I have had the opportunity to ask questions and have received satisfactory answers.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="2" data-statement="I have had the opportunity to ask questions and have received satisfactory answers.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 3">
+              <span class="consent-document-text"><span class="consent-document-num">3</span><span>I understand that my participation is entirely voluntary and that I may withdraw at any time without giving a reason and without penalty.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="3" data-statement="I understand that my participation is entirely voluntary and that I may withdraw at any time without giving a reason and without penalty.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 4">
+              <span class="consent-document-text"><span class="consent-document-num">4</span><span>I understand that, once I have completed the main parts of the study, my data will be uploaded and anonymised as part of the study completion process. After anonymisation, it will no longer be possible to identify, retrieve, or remove my individual data.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="4" data-statement="I understand that, once I have completed the main parts of the study, my data will be uploaded and anonymised as part of the study completion process. After anonymisation, it will no longer be possible to identify, retrieve, or remove my individual data.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 5">
+              <span class="consent-document-text"><span class="consent-document-num">5</span><span>I understand that no directly identifying information will be linked to my research data.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="5" data-statement="I understand that no directly identifying information will be linked to my research data.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 6">
+              <span class="consent-document-text"><span class="consent-document-num">6</span><span>I understand that fully anonymised data gathered in this study may be stored securely, used for future research, and may be shared in an open-access research repository.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="6" data-statement="I understand that fully anonymised data gathered in this study may be stored securely, used for future research, and may be shared in an open-access research repository.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 7">
+              <span class="consent-document-text"><span class="consent-document-num">7</span><span>I understand that the questionnaire used in this study (LSHS-E) is a research instrument used to measure individual differences and is not a diagnostic tool.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="7" data-statement="I understand that the questionnaire used in this study (LSHS-E) is a research instrument used to measure individual differences and is not a diagnostic tool.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 8">
+              <span class="consent-document-text"><span class="consent-document-num">8</span><span>I confirm that I am aged 18 years or over, am able to complete the task in English, and do not have significant hearing or vision difficulties that would prevent me from completing the task.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="8" data-statement="I confirm that I am aged 18 years or over, am able to complete the task in English, and do not have significant hearing or vision difficulties that would prevent me from completing the task.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 9">
+              <span class="consent-document-text"><span class="consent-document-num">9</span><span>I confirm that I do not have a history of neurological disorder, or head injury resulting in loss of consciousness or persistent deficits, do not have a self-reported diagnosis of epilepsy, schizophrenia spectrum disorder, or another psychotic disorder.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="9" data-statement="I confirm that I do not have a history of neurological disorder, or head injury resulting in loss of consciousness or persistent deficits, do not have a self-reported diagnosis of epilepsy, schizophrenia spectrum disorder, or another psychotic disorder.">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 10">
+              <span class="consent-document-text"><span class="consent-document-num">10</span><span>I confirm that I am not currently under the influence of alcohol or recreational drugs</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="10" data-statement="I confirm that I am not currently under the influence of alcohol or recreational drugs">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 11">
+              <span class="consent-document-text"><span class="consent-document-num">11</span><span>I understand how to raise a concern or make a complaint</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="11" data-statement="I understand how to raise a concern or make a complaint">
+              </span>
+            </label>
+            <label class="consent-document-row" aria-label="Consent item 12">
+              <span class="consent-document-text"><span class="consent-document-num">12</span><span>I agree to take part in this study.</span></span>
+              <span class="consent-document-check">
+                <input type="checkbox" class="consent-check" data-consent-index="12" data-statement="I agree to take part in this study.">
+              </span>
+            </label>
+            </div>
+            <label class="consent-toggle consent-toggle-inline" for="consent-toggle-all">
+              <input type="checkbox" id="consent-toggle-all">
+              <span>Tick all boxes</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
-    <div class="consent-toggle-row">
-      <label class="consent-toggle" for="consent-toggle-all">
-        <input type="checkbox" id="consent-toggle-all">
-        <span>Tick all boxes</span>
-      </label>
-    </div>
     <div class="error-msg" id="consent-error"></div>
-    <div class="btn-row">
+<div class="btn-row">
       <button class="btn btn-secondary" id="btn-consent-back">← Back</button>
       <button class="btn btn-primary" id="btn-consent-next">I Agree — Continue →</button>
     </div>
   </div>
 
-  <!-- ═══ AUTO-LOADED AUDIO SCREEN ═══ -->
+
+    <!-- ═══ AUTO-LOADED AUDIO SCREEN ═══ -->
   <div id="screen-upload" class="screen">
     <div class="logo">THE <span>PRIOR</span> GAME</div>
     <div class="tagline">Auditory Detection Task</div>
@@ -3089,9 +3128,44 @@ function syncConsentToggleAll(){
   toggle.indeterminate = !allChecked && checks.some(ch => ch.checked);
 }
 
-function buildMobileConsentChecklist(){ /* no duplicate checklist: consent uses official PNG overlay */ }
+function buildMobileConsentChecklist(){
+  const list = document.getElementById('mobile-consent-list');
+  if (!list || list.dataset.built === '1') return;
+  const checks = Array.from(document.querySelectorAll('.consent-check'));
+  list.innerHTML = checks.map((ch, idx) => {
+    const n = ch.dataset.consentIndex || String(idx + 1);
+    const statement = (ch.dataset.statement || '').trim();
+    return `<label class="mobile-consent-row" data-consent-row="${n}">
+      <input type="checkbox" class="mobile-consent-check" data-consent-target="${n}">
+      <span><small>${n}</small>${statement}</span>
+    </label>`;
+  }).join('');
+  list.querySelectorAll('.mobile-consent-check').forEach(ui => {
+    ui.addEventListener('change', () => {
+      const target = ui.dataset.consentTarget;
+      const original = document.querySelector(`.consent-check[data-consent-index="${target}"]`);
+      if (original) original.checked = ui.checked;
+      syncConsentToggleAll();
+      refreshMobileConsentChecklist();
+      document.getElementById('consent-error').textContent = '';
+    });
+  });
+  list.dataset.built = '1';
+}
 
-function refreshMobileConsentChecklist(){ /* no duplicate checklist: consent uses official PNG overlay */ }
+function refreshMobileConsentChecklist(){
+  const list = document.getElementById('mobile-consent-list');
+  if (!list) return;
+  buildMobileConsentChecklist();
+  list.querySelectorAll('.mobile-consent-check').forEach(ui => {
+    const target = ui.dataset.consentTarget;
+    const original = document.querySelector(`.consent-check[data-consent-index="${target}"]`);
+    const checked = !!(original && original.checked);
+    ui.checked = checked;
+    const row = ui.closest('.mobile-consent-row');
+    if (row) row.classList.toggle('active', checked);
+  });
+}
 
 function prepareConsentScreen(){
   if (!pisData.viewedAt) pisData.viewedAt = new Date().toISOString();
@@ -6256,9 +6330,8 @@ function buildAWSBasicSummaryCSV(){
 
 
 function buildConsentSummaryCSV(){
-  const itemCount = Math.max(0, consentData && Array.isArray(consentData.items) ? consentData.items.length : document.querySelectorAll('.consent-check').length);
   const baseCols = ['ParticipantID','PIS_ViewedAt','PIS_CompletedAt','Consent_ViewedAt','Consent_CompletedAt','ConsentFullName','ConsentDate','ConsentGiven'];
-  const itemCols = Array.from({length:itemCount}, (_,i)=>`ConsentItem_${i+1}`);
+  const itemCols = Array.from({length:11}, (_,i)=>`ConsentItem_${i+1}`);
   const row = [
     csvVal(PID),
     csvVal(pisData ? pisData.viewedAt : ''),
@@ -6268,10 +6341,9 @@ function buildConsentSummaryCSV(){
     csvVal(consentData ? consentData.fullName : ''),
     csvVal(consentData ? consentData.date : ''),
     csvVal(consentData ? consentData.consentGiven : ''),
-    ...Array.from({length:itemCount}, (_,i)=>csvVal(consentData && Array.isArray(consentData.items) && consentData.items[i] ? consentData.items[i].checked : ''))
+    ...Array.from({length:11}, (_,i)=>csvVal(consentData && Array.isArray(consentData.items) && consentData.items[i] ? consentData.items[i].checked : ''))
   ];
-  return baseCols.concat(itemCols).join(',') + '
-' + row.join(',');
+  return baseCols.concat(itemCols).join(',') + '\\n' + row.join(',');
 }
 
 function buildDebriefSummaryCSV(){
