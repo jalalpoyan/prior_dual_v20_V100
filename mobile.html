@@ -296,6 +296,17 @@ input[type=number].form-input::-webkit-inner-spin-button{opacity:0.4}
   letter-spacing:1.3px;text-transform:uppercase
 }
 .awsbasic-host #hc-container > div{max-width:100%}
+
+/* PRIOR patch: clearer AWSbasic trial numbering */
+.prior-hc-trial-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:0 0 12px 0;padding:8px 14px;border-radius:999px;
+  background:rgba(0,212,255,0.14);border:1px solid rgba(0,212,255,0.36);
+  color:#dff9ff;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;
+  letter-spacing:1.2px;text-transform:uppercase
+}
+.aws-basic-auto-scroll-anchor{scroll-margin-top:18px}
+
 .awsbasic-host #hc-container .hc-calibration-div,
 .awsbasic-host #hc-container .hc-trial-div{
   display:block !important;width:100%;max-width:100%;margin:14px 0 !important;padding:18px 18px 16px !important;
@@ -2880,12 +2891,40 @@ function updateOverallProgress(name) {
 
 let currentScreenName = 'pis';
 
+
+function scrollElementToTop(el){
+  if (!el) return;
+  try { el.scrollTo({ top: 0, left: 0, behavior: 'auto' }); }
+  catch (err) { try { el.scrollTop = 0; el.scrollLeft = 0; } catch (err2) {} }
+}
+
+function scrollScreenToTopSoon(name){
+  requestAnimationFrame(() => {
+    const screen = name && screenEls && screenEls[name] ? screenEls[name] : document.querySelector('.screen.active');
+    scrollElementToTop(document.scrollingElement || document.documentElement || document.body);
+    scrollElementToTop(document.body);
+    scrollElementToTop(ol);
+    if (!screen) return;
+    scrollElementToTop(screen);
+    screen.querySelectorAll('.questionnaire-scroll,.doc-scroll,.doc-window,.awsbasic-host,.scroll-box').forEach(scrollElementToTop);
+  });
+}
+
+function scrollAWSBasicToTopSoon(){
+  requestAnimationFrame(() => {
+    scrollElementToTop(ol);
+    scrollElementToTop(document.querySelector('#screen-awsbasic .awsbasic-host'));
+    scrollElementToTop(document.getElementById('hc-container'));
+  });
+}
+
 function showScreen(name) {
   currentScreenName = name || null;
   Object.values(screenEls).forEach(s => s.classList.remove('active'));
   if (name) {
     screenEls[name].classList.add('active');
     ol.style.display = 'flex';
+    scrollScreenToTopSoon(name);
   } else {
     ol.style.display = 'none';
   }
@@ -3253,6 +3292,10 @@ function disconnectAWSBasicObserver(){
     try { awsBasicObserver.disconnect(); } catch (err) {}
     awsBasicObserver = null;
   }
+  if (typeof awsBasicEnhanceTimer !== 'undefined' && awsBasicEnhanceTimer) {
+    try { window.clearTimeout(awsBasicEnhanceTimer); } catch (err) {}
+    awsBasicEnhanceTimer = null;
+  }
 }
 
 function emphasizeAWSBasicPhrases(root){
@@ -3352,12 +3395,85 @@ function emphasizeAWSBasicPhrases(root){
   });
 }
 
+
+let awsBasicEnhanceTimer = null;
+let awsBasicTrialBatchSignature = '';
+let awsBasicCurrentTrialOffset = 0;
+let awsBasicLastHadTrialBatch = false;
+let awsBasicLastTrialCount = 0;
+
+function getAWSBasicTrialSignature(trialDivs){
+  return trialDivs.map((div, idx) => {
+    const inputs = Array.from(div.querySelectorAll('input')).map(input => [input.name || '', input.value || '', input.type || ''].join(':')).join(',');
+    const text = (div.textContent || '').replace(/Trial\s+\d+\s+of\s+6/gi, '').replace(/\s+/g, ' ').trim();
+    return `${idx}|${inputs}|${text.slice(0,220)}`;
+  }).join('||');
+}
+
+function annotateAWSBasicTrials(root){
+  if (!root) return;
+  const trialDivs = Array.from(root.querySelectorAll('.hc-trial-div'));
+  if (!trialDivs.length) {
+    awsBasicLastHadTrialBatch = false;
+    awsBasicLastTrialCount = 0;
+    return;
+  }
+
+  const signature = getAWSBasicTrialSignature(trialDivs);
+  const isNewBatch = signature && signature !== awsBasicTrialBatchSignature;
+  if (isNewBatch) {
+    if (awsBasicTrialBatchSignature && awsBasicCurrentTrialOffset === 0) {
+      awsBasicCurrentTrialOffset = Math.min(3, Math.max(0, 6 - trialDivs.length));
+    }
+    awsBasicTrialBatchSignature = signature;
+    awsBasicLastHadTrialBatch = true;
+    awsBasicLastTrialCount = trialDivs.length;
+    scrollAWSBasicToTopSoon();
+  }
+
+  trialDivs.forEach((div, idx) => {
+    div.classList.add('aws-basic-auto-scroll-anchor');
+    const trialNumber = Math.min(6, awsBasicCurrentTrialOffset + idx + 1);
+    let badge = div.querySelector(':scope > .prior-hc-trial-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'prior-hc-trial-badge';
+      div.insertBefore(badge, div.firstChild);
+    }
+    badge.textContent = `Trial ${trialNumber} of 6`;
+  });
+}
+
+function enhanceAWSBasicUI(container){
+  emphasizeAWSBasicPhrases(container);
+  annotateAWSBasicTrials(container);
+}
+
+function scheduleAWSBasicEnhancement(container){
+  if (awsBasicEnhanceTimer) window.clearTimeout(awsBasicEnhanceTimer);
+  awsBasicEnhanceTimer = window.setTimeout(() => {
+    awsBasicEnhanceTimer = null;
+    enhanceAWSBasicUI(container);
+  }, 80);
+}
+
 function startAWSBasicObserver(container){
   disconnectAWSBasicObserver();
-  if (!container || typeof MutationObserver === 'undefined') return;
-  awsBasicObserver = new MutationObserver(() => emphasizeAWSBasicPhrases(container));
-  awsBasicObserver.observe(container, { childList: true, subtree: true, characterData: true });
-  emphasizeAWSBasicPhrases(container);
+  if (awsBasicEnhanceTimer) {
+    window.clearTimeout(awsBasicEnhanceTimer);
+    awsBasicEnhanceTimer = null;
+  }
+  awsBasicTrialBatchSignature = '';
+  awsBasicCurrentTrialOffset = 0;
+  awsBasicLastHadTrialBatch = false;
+  awsBasicLastTrialCount = 0;
+  if (!container) return;
+  if (typeof MutationObserver !== 'undefined') {
+    awsBasicObserver = new MutationObserver(() => scheduleAWSBasicEnhancement(container));
+    awsBasicObserver.observe(container, { childList: true, subtree: true, characterData: true, attributes: false });
+  }
+  enhanceAWSBasicUI(container);
+  scheduleAWSBasicEnhancement(container);
 }
 
 function launchAWSBasic(){
@@ -3399,7 +3515,7 @@ function launchAWSBasic(){
     awsBasicRunning = true;
     HeadphoneCheck.runHeadphoneCheck();
     startAWSBasicObserver(container);
-    window.setTimeout(() => emphasizeAWSBasicPhrases(container), 120);
+    window.setTimeout(() => enhanceAWSBasicUI(container), 120);
     statusEl.textContent = '';
     statusEl.className = 'status info';
   } catch (err) {
