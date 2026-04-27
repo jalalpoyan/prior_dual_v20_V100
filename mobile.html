@@ -1797,32 +1797,245 @@ button.btn-primary{ width: 100%; }
 }
 
 
-/* Cambridge logo on mobile consent form */
+/* Mobile consent form: Word-document-style layout */
+#screen-consent .doc-window{
+  padding:18px;
+  background:
+    radial-gradient(circle at top right,rgba(0,212,255,0.08),transparent 28%),
+    linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.03));
+}
+#screen-consent .doc-page-consent{
+  padding:0 !important;
+  background:#fff !important;
+  color:#12202f;
+  border-radius:12px;
+  overflow:hidden !important;
+}
+#screen-consent .consent-doc-content{
+  width:100%;
+  max-width:940px;
+  margin:0 auto;
+  padding:28px 30px 32px;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
 #screen-consent .consent-doc-header{
+  margin:0 0 20px;
+  padding:0;
+  border-bottom:none;
   text-align:left;
+}
+#screen-consent .consent-letterhead{
+  display:grid;
+  grid-template-columns:minmax(130px,190px) 1fr;
+  gap:18px;
+  align-items:start;
+  padding-bottom:16px;
+  border-bottom:1px solid rgba(18,31,46,0.16);
 }
 #screen-consent .doc-page-consent img.consent-cambridge-logo{
   display:block !important;
-  width:min(180px,46%);
+  width:180px;
+  max-width:100%;
   height:auto;
-  margin:0 0 18px 0;
+  margin:0;
 }
-#screen-consent .consent-doc-header h2,
-#screen-consent .consent-doc-header p{
-  text-align:left;
+#screen-consent .consent-doc-meta{
+  align-self:start;
+  text-align:right;
+  font-size:13px;
+  line-height:1.55;
+  color:#34495e;
+}
+#screen-consent .consent-doc-meta strong{
+  color:#12202f;
+  font-weight:800;
 }
 #screen-consent .consent-doc-contact{
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:12px;
-  background:#eef3f8;
-  border:1px solid rgba(18,31,46,0.10);
-  color:#243444;
-  font-size:14px;
+  margin:0 0 6px;
+  padding:0;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  color:#34495e;
+  font-size:13px;
   line-height:1.55;
 }
-#screen-consent .consent-doc-contact strong{
+#screen-consent .consent-doc-version{
+  color:#566a7a;
+  font-size:13px;
+}
+#screen-consent .consent-title-block{
+  text-align:center;
+  padding:20px 0 18px;
+}
+#screen-consent .consent-title-block h2{
+  margin:0;
+  font-size:25px;
+  line-height:1.15;
+  letter-spacing:0.6px;
   color:#12202f;
+  font-weight:900;
+  text-transform:uppercase;
+}
+#screen-consent .consent-study-title{
+  margin:8px auto 0;
+  max-width:620px;
+  font-size:15px;
+  line-height:1.45;
+  color:#243444;
+  font-weight:700;
+}
+#screen-consent .consent-statement-heading{
+  margin:14px 0 0;
+  font-size:14px;
+  line-height:1.4;
+  color:#405060;
+  font-weight:700;
+}
+#screen-consent .consent-mobile-hint{
+  margin:7px 0 0;
+  font-size:12px;
+  line-height:1.45;
+  color:#6a7b88;
+}
+#screen-consent .consent-table-head{
+  display:grid;
+  grid-template-columns:1fr 68px;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  border:1px solid rgba(18,31,46,0.18);
+  border-bottom:0;
+  border-radius:10px 10px 0 0;
+  background:#f3f6f9;
+  color:#243444;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:0.6px;
+  text-transform:uppercase;
+}
+#screen-consent .consent-table-head span:last-child{
+  text-align:center;
+}
+#screen-consent .consent-doc-rows{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  border:1px solid rgba(18,31,46,0.18);
+  border-radius:0 0 10px 10px;
+  overflow:hidden;
+  background:#fff;
+}
+#screen-consent .consent-document-row{
+  display:grid;
+  grid-template-columns:1fr 68px;
+  gap:12px;
+  align-items:center;
+  width:100%;
+  min-height:58px;
+  padding:12px 14px;
+  border:0;
+  border-bottom:1px solid rgba(18,31,46,0.12);
+  border-radius:0;
+  background:#fff;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:rgba(15,107,255,0.12);
+  user-select:none;
+  -webkit-user-select:none;
+}
+#screen-consent .consent-document-row:last-child{
+  border-bottom:0;
+}
+#screen-consent .consent-document-row:nth-child(even){
+  background:#fbfcfe;
+}
+#screen-consent .consent-document-row:active{
+  transform:none;
+  background:#eef5ff;
+}
+#screen-consent .consent-document-row:has(input:checked){
+  border-color:rgba(15,107,255,0.20);
+  background:rgba(15,107,255,0.06);
+}
+#screen-consent .consent-document-text{
+  display:grid;
+  grid-template-columns:30px 1fr;
+  gap:10px;
+  align-items:start;
+  font-size:14px;
+  line-height:1.48;
+  font-weight:600;
+  color:#243444;
+}
+#screen-consent .consent-document-num{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:24px;
+  height:24px;
+  border-radius:6px;
+  background:#f3f6f9;
+  border:1px solid rgba(18,31,46,0.14);
+  color:#405060;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  flex:0 0 24px;
+}
+#screen-consent .consent-document-check{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+}
+#screen-consent .consent-document-check input,
+#screen-consent .consent-tick-cell .consent-check{
+  width:28px;
+  height:28px;
+  margin:0;
+  accent-color:#0f6bff;
+  cursor:pointer;
+}
+#screen-consent .consent-toggle-inline{
+  position:static !important;
+  left:auto !important;
+  top:auto !important;
+  transform:none !important;
+  margin:14px 0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:#f3f6f9;
+  border:1px solid rgba(18,31,46,0.14);
+  box-shadow:none;
+  color:#153558;
+  font-size:13px;
+  line-height:1.3;
+  font-family:'Share Tech Mono',monospace;
+  white-space:nowrap;
+}
+#screen-consent .consent-toggle-inline input{
+  width:22px;
+  height:22px;
+  accent-color:#0f6bff;
+  cursor:pointer;
+}
+#screen-consent .consent-toggle-row{display:none}
+@media (max-width:560px){
+  #screen-consent .doc-window{padding:12px}
+  #screen-consent .consent-doc-content{padding:22px 18px 26px}
+  #screen-consent .consent-letterhead{grid-template-columns:1fr;gap:12px}
+  #screen-consent .doc-page-consent img.consent-cambridge-logo{width:154px}
+  #screen-consent .consent-doc-meta{text-align:left;font-size:12.5px}
+  #screen-consent .consent-title-block{padding:18px 0 16px}
+  #screen-consent .consent-title-block h2{font-size:22px}
+  #screen-consent .consent-table-head,
+  #screen-consent .consent-document-row{grid-template-columns:1fr 54px;gap:8px;padding-left:12px;padding-right:12px}
+  #screen-consent .consent-document-text{grid-template-columns:28px 1fr;font-size:13.5px;gap:8px}
+  #screen-consent .consent-document-check input{width:26px;height:26px}
 }
 
 </style>
@@ -1868,11 +2081,21 @@ button.btn-primary{ width: 100%; }
         <div class="doc-page doc-page-consent">
           <div class="consent-doc-content">
             <div class="consent-doc-header">
-              <img class="consent-cambridge-logo" src="assets/Logo/secondary-logo-stacked.png" alt="University of Cambridge logo" loading="lazy" decoding="async">
-              <h2>Consent Form</h2>
-              <p>Please tick each statement below. You can tap anywhere on a statement row, not only the checkbox.</p>
-              <p class="consent-doc-contact"><strong>Contact:</strong> Yusef Jalal Poyan, yjp24@cam.ac.uk or +45 81748591</p>
+              <div class="consent-letterhead">
+                <img class="consent-cambridge-logo" src="assets/Logo/secondary-logo-stacked.png" alt="University of Cambridge logo" loading="lazy" decoding="async">
+                <div class="consent-doc-meta">
+                  <p class="consent-doc-contact"><strong>Contact:</strong> Yusef Jalal Poyan, yjp24@cam.ac.uk or +45 81748591</p>
+                  <p class="consent-doc-version">v1.0, dated 13 April 2026</p>
+                </div>
+              </div>
+              <div class="consent-title-block">
+                <h2>Consent Form</h2>
+                <p class="consent-study-title">Noise Schemas and Prior Expectations in Auditory Signal Detection</p>
+                <p class="consent-statement-heading">Statement of consent - please tick each box to confirm</p>
+                <p class="consent-mobile-hint">You can tap anywhere on a statement row, not only the checkbox.</p>
+              </div>
             </div>
+            <div class="consent-table-head" aria-hidden="true"><span>Statement</span><span>Tick</span></div>
             <div class="consent-doc-rows">
             <label class="consent-document-row" aria-label="Consent item 1">
               <span class="consent-document-text"><span class="consent-document-num">1</span><span>I have read and understood the Participant Information Sheet for this study.</span></span>
@@ -1911,9 +2134,9 @@ button.btn-primary{ width: 100%; }
               </span>
             </label>
             <label class="consent-document-row" aria-label="Consent item 7">
-              <span class="consent-document-text"><span class="consent-document-num">7</span><span>I understand that the questionnaire used in this study (LSHS-E) is a research instrument used to measure individual differences and is not a diagnostic tool.</span></span>
+              <span class="consent-document-text"><span class="consent-document-num">7</span><span>I understand that the questionnaire used in this study is a research instrument used to measure individual differences and not a diagnostic tool.</span></span>
               <span class="consent-document-check">
-                <input type="checkbox" class="consent-check" data-consent-index="7" data-statement="I understand that the questionnaire used in this study (LSHS-E) is a research instrument used to measure individual differences and is not a diagnostic tool.">
+                <input type="checkbox" class="consent-check" data-consent-index="7" data-statement="I understand that the questionnaire used in this study is a research instrument used to measure individual differences and not a diagnostic tool.">
               </span>
             </label>
             <label class="consent-document-row" aria-label="Consent item 8">
@@ -1929,9 +2152,9 @@ button.btn-primary{ width: 100%; }
               </span>
             </label>
             <label class="consent-document-row" aria-label="Consent item 10">
-              <span class="consent-document-text"><span class="consent-document-num">10</span><span>I confirm that I am not currently under the influence of alcohol or recreational drugs</span></span>
+              <span class="consent-document-text"><span class="consent-document-num">10</span><span>I confirm that I am not currently under the influence of alcohol or recreational drugs.</span></span>
               <span class="consent-document-check">
-                <input type="checkbox" class="consent-check" data-consent-index="10" data-statement="I confirm that I am not currently under the influence of alcohol or recreational drugs">
+                <input type="checkbox" class="consent-check" data-consent-index="10" data-statement="I confirm that I am not currently under the influence of alcohol or recreational drugs.">
               </span>
             </label>
             <label class="consent-document-row" aria-label="Consent item 11">
