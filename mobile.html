@@ -4376,7 +4376,9 @@ function delayMs(ms) {
 }
 
 function markQuestTrialInterrupted(reason = 'audio/visibility interruption') {
-  if (!questRunning || questAbortFlag) return;
+  // Don't re-interrupt if we're already paused/interrupted — the resume handler is
+  // already running and re-setting the flags would corrupt its state.
+  if (!questRunning || questAbortFlag || questPausedFlag || questInterruptedFlag) return;
   questPausedFlag = true;
   questInterruptedFlag = true;
   questInterruptionReason = reason;
@@ -4389,7 +4391,9 @@ function markQuestTrialInterrupted(reason = 'audio/visibility interruption') {
   } catch (e) {}
 }
 
-function waitForQuestResumeGesture(timeoutMs = 650) {
+function waitForQuestResumeGesture() {
+  // No timeout — waits indefinitely for a real user gesture.
+  // This is required: iOS will only allow audioCtx.resume() inside a genuine gesture handler.
   return new Promise(resolve => {
     let done = false;
     const cleanup = () => {
@@ -4397,7 +4401,6 @@ function waitForQuestResumeGesture(timeoutMs = 650) {
       document.removeEventListener('touchstart', onGesture, true);
       document.removeEventListener('mousedown', onGesture, true);
       document.removeEventListener('keydown', onGesture, true);
-      clearTimeout(timer);
     };
     const finish = () => {
       if (done) return;
@@ -4406,7 +4409,6 @@ function waitForQuestResumeGesture(timeoutMs = 650) {
       resolve();
     };
     const onGesture = () => finish();
-    const timer = setTimeout(finish, timeoutMs);
     document.addEventListener('pointerdown', onGesture, true);
     document.addEventListener('touchstart', onGesture, true);
     document.addEventListener('mousedown', onGesture, true);
@@ -4433,7 +4435,12 @@ async function unlockAudioAfterReturn() {
 
 async function waitForQuestResumeAfterInterruption() {
   if (!questPausedFlag && !questInterruptedFlag) return;
+
+  // Stop the watchdog while we handle the resume — prevents it from re-interrupting
+  // mid-resume when audio is briefly suspended during unlocking.
+  stopQuestAudioWatchdog();
   stopAudio();
+
   try {
     drawQuestMessage([
       'Audio interrupted',
@@ -4442,27 +4449,32 @@ async function waitForQuestResumeAfterInterruption() {
   } catch (e) {}
 
   while (!questAbortFlag) {
-    // Wait until page is visible
+    // Wait until the page is actually visible before asking for a gesture
     if (document.hidden) {
       await delayMs(120);
       continue;
     }
 
-    // Wait for a real user gesture FIRST — iOS requires this before audio can resume
-    await waitForQuestResumeGesture(10000);
+    // Wait for a real user gesture — no timeout, iOS requires this for audioCtx.resume()
+    await waitForQuestResumeGesture();
 
     if (questAbortFlag) break;
 
-    // Now that we have a gesture, try to unlock audio
+    // Gesture received — now unlock audio within the same gesture callstack
     await unlockAudioAfterReturn();
 
-    // Whether or not audioCtx is running, clear flags and let the trial restart.
-    // If audio is still not running the watchdog will catch it on the next trial.
+    // Clear all interrupt flags
     questPausedFlag = false;
     questInterruptedFlag = false;
     questInterruptionReason = '';
+
+    // Restart the watchdog now that audio should be running again
+    startQuestAudioWatchdog();
     return;
   }
+
+  // Aborted — restart watchdog before throwing so cleanup is consistent
+  startQuestAudioWatchdog();
   throw new Error('QUEST_ABORT');
 }
 
