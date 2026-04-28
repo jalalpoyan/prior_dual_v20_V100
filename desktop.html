@@ -5107,6 +5107,15 @@ document.getElementById('btn-download').addEventListener('click', downloadSessio
 document.getElementById('btn-new-session')?.addEventListener('click', ()=>location.reload());
 document.getElementById('btn-end-session').addEventListener('click', () => {
   debriefData.completedAt = new Date().toISOString();
+  if (remoteUploadConfigured() && !remoteUploadState.success) {
+    const btn = document.getElementById('btn-end-session');
+    if (btn && !btn.dataset.uploadWarned) {
+      btn.dataset.uploadWarned = '1';
+      btn.textContent = 'Still saving — click again to continue anyway';
+      btn.style.background = '#c0392b';
+      return;
+    }
+  }
   showScreen('end');
 });
 document.getElementById('btn-end-close').addEventListener('click', () => {
@@ -5228,36 +5237,41 @@ function buildRemoteUploadPayload(){
     sheet_row: buildRemoteSummaryRow()
   };
 
+  // Both uploads always include all main trial files.
+  // The questionnaire upload is a complete resend so that if the first upload
+  // failed (network drop, timeout), the second upload is a full backup.
+  const mainFiles = {
+    'README.txt': readmeTXT,
+    'session_summary.csv': sessionSummaryCSV,
+    'session_manifest_full.json': manifestJSON,
+    'documents/consent_summary.csv': consentSummaryCSV,
+    'documents/consent_full.json': consentJSON,
+    'documents/debrief_summary.csv': debriefSummaryCSV,
+    'documents/debrief_full.json': debriefJSON,
+    'awsbasic/awsbasic_results_full.json': awsbasicResultsJSON,
+    'awsbasic/awsbasic_summary.csv': awsbasicSummaryCSV,
+    'quest/quest_results_full.json': questResultsJSON,
+    'quest/quest_log.txt': questLog,
+    'quest/quest_trials.csv': questCSV,
+    'main/main_trials.csv': mainCSV,
+    'main/main_trials_full.json': mainJSON
+  };
+  const mainImages = {
+    'quest/quest_figure.png': questFigureDataUrl || '',
+    'main/main_figure.png': mainFigureDataUrl || ''
+  };
+
   if (uploadStage === 'questionnaire') {
-    // Upload 2: questionnaire files only
-    base.text_files = {
+    // Full resend: all main files + questionnaire files
+    base.text_files = Object.assign({}, mainFiles, {
       'questionnaires/questionnaire_summary.csv': questionnaireSummaryCSV,
       'questionnaires/lshs_responses.csv': capsCSV,
       'questionnaires/lshs_full.json': capsJSON
-    };
-    base.image_data_urls = {};
+    });
+    base.image_data_urls = mainImages;
   } else {
-    // Upload 1: everything except questionnaire
-    base.text_files = {
-      'README.txt': readmeTXT,
-      'session_summary.csv': sessionSummaryCSV,
-      'session_manifest_full.json': manifestJSON,
-      'documents/consent_summary.csv': consentSummaryCSV,
-      'documents/consent_full.json': consentJSON,
-      'documents/debrief_summary.csv': debriefSummaryCSV,
-      'documents/debrief_full.json': debriefJSON,
-      'awsbasic/awsbasic_results_full.json': awsbasicResultsJSON,
-      'awsbasic/awsbasic_summary.csv': awsbasicSummaryCSV,
-      'quest/quest_results_full.json': questResultsJSON,
-      'quest/quest_log.txt': questLog,
-      'quest/quest_trials.csv': questCSV,
-      'main/main_trials.csv': mainCSV,
-      'main/main_trials_full.json': mainJSON
-    };
-    base.image_data_urls = {
-      'quest/quest_figure.png': questFigureDataUrl || '',
-      'main/main_figure.png': mainFigureDataUrl || ''
-    };
+    base.text_files = mainFiles;
+    base.image_data_urls = mainImages;
   }
 
   return base;
@@ -5320,7 +5334,9 @@ async function uploadSessionPackageRemote(force=false){
       remoteUploadState.success = false;
       remoteUploadState.lastError = String(err && err.message ? err.message : err);
       remoteUploadState.promise = null;
-      setRemoteUploadStatus(`Cloud upload failed: ${remoteUploadState.lastError}. Please download the ZIP backup before continuing.`, 'err');
+      if (!remoteUploadState._silentRetrying) {
+        setRemoteUploadStatus(`Upload not confirmed — retrying automatically. Please keep this window open.`, 'info');
+      }
       throw err;
     }
   })();
@@ -5328,18 +5344,57 @@ async function uploadSessionPackageRemote(force=false){
   return remoteUploadState.promise;
 }
 
-// Fires upload silently in background — no saving screen shown to participant.
+// Fires upload silently in background with automatic retries — retries indefinitely
+// until success or the page is closed. After the initial fast retries it settles
+// into a 120s cadence to avoid hammering the server.
 // Called twice: once after main experiment, once after questionnaire.
 // Both uploads share sessionBaseName so files land in the same Drive folder.
+const UPLOAD_RETRY_DELAYS_MS = [5000, 10000, 20000, 30000, 60000, 120000];
+
 function silentUploadBackground(stage) {
   uploadStage = stage || 'main';
   if (!remoteUploadConfigured()) return;
-  remoteUploadState.started  = false;
-  remoteUploadState.finished = false;
-  remoteUploadState.success  = false;
-  remoteUploadState.promise  = null;
-  remoteUploadState.lastError = '';
-  uploadSessionPackageRemote(true).catch(e => console.warn('Silent upload failed:', e));
+
+  let attempt = 0;
+  const tokenObj = { cancelled: false };
+  silentUploadBackground._tokens = silentUploadBackground._tokens || {};
+  if (silentUploadBackground._tokens[stage]) {
+    silentUploadBackground._tokens[stage].cancelled = true;
+  }
+  silentUploadBackground._tokens[stage] = tokenObj;
+
+  async function tryOnce() {
+    if (tokenObj.cancelled) return;
+
+    remoteUploadState._silentRetrying = true;
+    remoteUploadState.started  = false;
+    remoteUploadState.finished = false;
+    remoteUploadState.success  = false;
+    remoteUploadState.promise  = null;
+    remoteUploadState.lastError = '';
+
+    try {
+      await uploadSessionPackageRemote(true);
+      remoteUploadState._silentRetrying = false;
+      if (REMOTE_UPLOAD_CFG.debug) console.log(`Upload (${stage}) succeeded on attempt ${attempt + 1}`);
+      setRemoteUploadStatus('Your data have been uploaded successfully.', 'ok');
+      const btn = document.getElementById('btn-end-session');
+      if (btn && btn.dataset.uploadWarned) {
+        btn.textContent = 'END';
+        btn.style.background = '';
+        delete btn.dataset.uploadWarned;
+      }
+    } catch (err) {
+      if (tokenObj.cancelled) return;
+      attempt++;
+      const delay = UPLOAD_RETRY_DELAYS_MS[Math.min(attempt - 1, UPLOAD_RETRY_DELAYS_MS.length - 1)];
+      console.warn(`Upload (${stage}) attempt ${attempt} failed. Retrying in ${delay/1000}s...`, err);
+      setRemoteUploadStatus(`Data not yet saved — retrying automatically (attempt ${attempt}). Please keep this window open.`, 'info');
+      setTimeout(tryOnce, delay);
+    }
+  }
+
+  tryOnce();
 }
 
 function escapeHTML(value){
