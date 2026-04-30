@@ -2630,6 +2630,13 @@ const QUEST_CFG = {
     fixationMax: 1.0,
     responseDeadline: 5.0,
     iti: 0.4
+  },
+  // Practice block before QUEST proper (Kafadar et al. 2022: 80% accuracy required)
+  practice: {
+    nTrials: 8,
+    toneSnrDB: 0,
+    passThreshold: 0.80,
+    maxAttempts: 2
   }
 };
 QUEST_CFG.quest.pThreshold = QUEST_CFG.quest.gamma +
@@ -4911,6 +4918,15 @@ function buildQuestLog(results) {
   if (!results.fit_valid) lines.push('⚠ Fit failed — thresholds are NaN. Exclude this participant.');
   if (results.unbounded1) lines.push('⚠ Staircase 1 Tlike hit the boundary of the intensity range.');
   if (results.unbounded2) lines.push('⚠ Staircase 2 Tlike hit the boundary of the intensity range.');
+  if (results.n_trial_repeats > 0) lines.push(`Non-responses (trial repeats): ${results.n_trial_repeats} of ${results.config.quest.nStaircases * results.config.quest.nPerStaircase} trials`);
+  if (results.kafadar_qc) {
+    const qc = results.kafadar_qc;
+    lines.push('');
+    lines.push('Kafadar et al. (2022) QC criteria:');
+    lines.push(`  Criterion 1 (detection >=55% near 75%-threshold): ${qc.criterion1_pass ? 'PASS' : 'FAIL'} (rate=${Number.isFinite(qc.criterion1_detection_near_threshold) ? qc.criterion1_detection_near_threshold.toFixed(3) : 'N/A'}, n=${qc.criterion1_n_trials})`);
+    lines.push(`  Criterion 2 (positive intensity-detection slope): ${qc.criterion2_pass ? 'PASS' : 'FAIL'} (r=${Number.isFinite(qc.criterion2_slope_r) ? qc.criterion2_slope_r.toFixed(3) : 'N/A'})`);
+    lines.push(`  Both criteria met: ${qc.both_pass ? 'YES' : 'NO — consider re-running participant'}`);
+  }
   return lines.join('\n');
 }
 
@@ -4919,6 +4935,109 @@ function updateQuestSetupFields(results) {
     snrHigh = results.threshold_75;
     snrMedium = results.threshold_50;
     snrLow = results.threshold_25;
+  }
+}
+
+// ─── Kafadar et al. (2022) post-task QC flags ────────────────────────────────
+function computeKafadarQC(data, threshold75) {
+  const nc = data.intensities
+    .map((x, i) => ({ x, y: data.responses[i], c: data.isCatch[i] }))
+    .filter(d => d.c === 0 && !Number.isNaN(d.x));
+  const ref = Number.isFinite(threshold75) ? threshold75 : -15;
+  const nearThr = nc.filter(d => Math.abs(d.x - ref) < 3);
+  const crit1Rate = nearThr.length ? nearThr.reduce((a, d) => a + d.y, 0) / nearThr.length : NaN;
+  const criterion1_pass = nearThr.length >= 3 && crit1Rate >= 0.55;
+  const xVals = nc.map(d => d.x);
+  const yVals = nc.map(d => d.y);
+  let r = NaN;
+  if (xVals.length >= 6) {
+    const mx = xVals.reduce((a, b) => a + b, 0) / xVals.length;
+    const my = yVals.reduce((a, b) => a + b, 0) / yVals.length;
+    const num = xVals.reduce((a, v, i) => a + (v - mx) * (yVals[i] - my), 0);
+    const dx  = Math.sqrt(xVals.reduce((a, v) => a + (v - mx) ** 2, 0));
+    const dy  = Math.sqrt(yVals.reduce((a, v) => a + (v - my) ** 2, 0));
+    r = (dx * dy) ? num / (dx * dy) : NaN;
+  }
+  const criterion2_pass = Number.isFinite(r) && r > 0;
+  return {
+    criterion1_detection_near_threshold: crit1Rate,
+    criterion1_n_trials: nearThr.length,
+    criterion1_pass,
+    criterion2_slope_r: r,
+    criterion2_pass,
+    both_pass: criterion1_pass && criterion2_pass
+  };
+}
+
+// ─── Practice block before QUEST (Kafadar et al. 2022: 80% accuracy required) ─
+async function runQuestPractice() {
+  const cfg = QUEST_CFG.practice;
+  const nT  = cfg.nTrials;
+  const snr = cfg.toneSnrDB;
+
+  for (let attempt = 1; attempt <= cfg.maxAttempts; attempt++) {
+    drawQuestMessage([
+      attempt === 1 ? 'Short practice — get ready' : `Practice again (attempt ${attempt})`,
+      'The tone will be clearly audible. Tap YES or NO.'
+    ]);
+    await sleepWithQuestAbort(1500);
+
+    let nCorrect = 0;
+
+    for (let t = 1; t <= nT; t++) {
+      await unlockAudioAfterReturn();
+      const sig = buildQuestSignal(snr, false);
+
+      drawQuestFixation(t, nT);
+      await sleepWithQuestAbort(
+        (QUEST_CFG.timing.fixationMin +
+          Math.random() * (QUEST_CFG.timing.fixationMax - QUEST_CFG.timing.fixationMin)) * 1000
+      );
+
+      drawQuestListening(t, nT);
+      const respStart = performance.now();
+      const collector = createQuestResponseCollector(respStart);
+      playAudio(sig.audioBuf);
+
+      let resp = null;
+      const listenStart = performance.now();
+      while (performance.now() - listenStart < QUEST_CFG.audio.noiseDuration * 1000 + 60) {
+        if (questAbortFlag) { collector.dispose(); throw new Error('QUEST_ABORT'); }
+        resp = collector.getResult();
+        if (resp) break;
+        await delayMs(10);
+      }
+      stopAudio();
+
+      if (!resp) {
+        drawQuestQuestion(t, nT);
+        const waitResult = await waitForQuestResponseOrInterrupt(collector);
+        if (waitResult.interrupted) { collector.dispose(); continue; }
+        resp = waitResult.response;
+      }
+      collector.dispose();
+
+      if (!resp || resp.response === -2 || questAbortFlag) throw new Error('QUEST_ABORT');
+      if (resp.response === 1) nCorrect++;
+      await sleepWithQuestAbort(QUEST_CFG.timing.iti * 1000);
+    }
+
+    const acc = nCorrect / nT;
+    if (acc >= cfg.passThreshold) {
+      drawQuestMessage([
+        `Practice passed — ${nCorrect}/${nT} correct`,
+        'The tone will be much quieter now. Tap to continue.'
+      ]);
+      await sleepWithQuestAbort(2000);
+      return;
+    }
+    if (attempt < cfg.maxAttempts) {
+      drawQuestMessage([
+        `Practice: ${nCorrect}/${nT} correct — let's try again`,
+        'Make sure headphones are on and volume is at least 50%.'
+      ]);
+      await sleepWithQuestAbort(2500);
+    }
   }
 }
 
@@ -4931,15 +5050,23 @@ async function runQuestProcedure() {
   startQuestAudioWatchdog();
   showScreen(null);
   drawQuestMessage(['Initializing QUEST…', `pThreshold = ${QUEST_CFG.quest.pThreshold.toFixed(4)}`]);
+  await sleepWithQuestAbort(600);
+
+  attachQuestEscapeHandler();
+
+  // Practice block (Kafadar et al. 2022: 80% accuracy required before QUEST)
+  await runQuestPractice();
 
   const totalTrials = QUEST_CFG.quest.nStaircases * QUEST_CFG.quest.nPerStaircase;
-  const data = { intensities: [], responses: [], RTs: [], staircase: [], trial_number: [], timestamps: [], isCatch: [], noiseFiles: [], noiseStartSec: [] };
+  const data = {
+    intensities: [], responses: [], RTs: [], staircase: [], trial_number: [],
+    timestamps: [], isCatch: [], noiseFiles: [], noiseStartSec: [], trialRepeated: []
+  };
   const q1 = createQuestObject();
   const q2 = createQuestObject();
   const q1_logprior = q1.pdf.slice();
   const q2_logprior = q2.pdf.slice();
   const startPerf = performance.now();
-  attachQuestEscapeHandler();
 
   let trialCount = 0;
   try {
@@ -4953,6 +5080,8 @@ async function runQuestProcedure() {
         const isCatch = Math.random() < QUEST_CFG.quest.catchRate;
 
         let trialCompleted = false;
+        let wasRepeated = false; // Kafadar et al. 2022: non-response → repeat trial
+
         while (!trialCompleted) {
           questInterruptedFlag = false;
           questPausedFlag = false;
@@ -5010,6 +5139,12 @@ async function runQuestProcedure() {
           }
           questRespCollector.dispose();
 
+          // Genuine non-response (deadline elapsed with no key/touch) → repeat trial
+          if (!resp) {
+            wasRepeated = true;
+            continue;
+          }
+
           if (resp.response === -2 || questAbortFlag) throw new Error('QUEST_ABORT');
 
           if (!isCatch) {
@@ -5027,13 +5162,13 @@ async function runQuestProcedure() {
           data.isCatch.push(isCatch ? 1 : 0);
           data.noiseFiles.push(sig.noiseFile);
           data.noiseStartSec.push(sig.noiseStartSec);
+          data.trialRepeated.push(wasRepeated ? 1 : 0);
 
           trialCompleted = true;
         }
 
         await sleepWithQuestAbort(QUEST_CFG.timing.iti * 1000);
         if (consumeQuestInterruption()) {
-          // Interruption during ITI does not invalidate the just-recorded response.
           await unlockAudioAfterReturn();
         }
       }
@@ -5096,6 +5231,9 @@ async function runQuestProcedure() {
       config: JSON.parse(JSON.stringify(QUEST_CFG)),
       unbounded1,
       unbounded2,
+      // Kafadar et al. (2022) QC flags — for post-hoc researcher review
+      kafadar_qc: computeKafadarQC(data, threshold75),
+      n_trial_repeats: data.trialRepeated.reduce((a, b) => a + b, 0),
       audioSampleRate: audioCtx ? audioCtx.sampleRate : null
     };
     delete questResults.fit_params.func;
@@ -6651,7 +6789,7 @@ function buildMainCSV(){
 function buildQuestCSV(){
   if (!questResults) return '';
   const d = questResults.quest_data;
-  const cols = ['ParticipantID','TrialNumber','Staircase','IsCatch','Intensity_dB_SNR','Response','RT_sec','Timestamp_sec','NoiseFile','NoiseStartSec'];
+  const cols = ['ParticipantID','TrialNumber','Staircase','IsCatch','Intensity_dB_SNR','Response','RT_sec','Timestamp_sec','NoiseFile','NoiseStartSec','TrialRepeated'];
   const rows = [cols.join(',')];
   for (let i = 0; i < d.responses.length; i++) {
     rows.push([
@@ -6664,7 +6802,8 @@ function buildQuestCSV(){
       csvVal(d.RTs[i]),
       csvVal(d.timestamps[i]),
       csvVal(d.noiseFiles[i]),
-      csvVal(d.noiseStartSec[i])
+      csvVal(d.noiseStartSec[i]),
+      csvVal(d.trialRepeated ? d.trialRepeated[i] : 0)
     ].join(','));
   }
   return rows.join('\n');
