@@ -2633,7 +2633,7 @@ const QUEST_CFG = {
   },
   // Practice block before QUEST proper (Kafadar et al. 2022: 80% accuracy required)
   practice: {
-    nTrials: 8,
+    nTrials: 5,
     toneSnrDB: 0,
     passThreshold: 0.80,
     maxAttempts: 2
@@ -3637,9 +3637,9 @@ function emphasizeAWSBasicPhrases(root){
     },
     { pattern: /set\s+your\s+computer\s+volume\s+to\s+about\s+25%/gi, replace: 'set your volume to about 25%' },
     { pattern: /Test\s+sounds\s+can\s+only\s+be\s+played\s+once!?/gi, replace: 'Each test sound can only be played once.' },
-    { pattern: /FIRST\s+sound\s+was\s+SOFTEST/gi, replace: '1. sound was SOFTEST' },
-    { pattern: /SECOND\s+sound\s+was\s+SOFTEST/gi, replace: '2. sound was SOFTEST' },
-    { pattern: /THIRD\s+sound\s+was\s+SOFTEST/gi, replace: '3. sound was SOFTEST' }
+    { pattern: /FIRST\s+sound\s+was\s+SOFTEST/gi, replace: '1. was the quietest' },
+    { pattern: /SECOND\s+sound\s+was\s+SOFTEST/gi, replace: '2. was the quietest' },
+    { pattern: /THIRD\s+sound\s+was\s+SOFTEST/gi, replace: '3. was the quietest' }
   ];
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
@@ -3658,9 +3658,9 @@ function emphasizeAWSBasicPhrases(root){
   });
 
   const labelFixes = new Map([
-    ['FIRST sound was SOFTEST', '1. sound was SOFTEST'],
-    ['SECOND sound was SOFTEST', '2. sound was SOFTEST'],
-    ['THIRD sound was SOFTEST', '3. sound was SOFTEST']
+    ['FIRST sound was SOFTEST', '1. was the quietest'],
+    ['SECOND sound was SOFTEST', '2. was the quietest'],
+    ['THIRD sound was SOFTEST', '3. was the quietest']
   ]);
   root.querySelectorAll('label').forEach((label) => {
     const txt = (label.textContent || '').replace(/\s+/g, ' ').trim();
