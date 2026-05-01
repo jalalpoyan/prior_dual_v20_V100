@@ -3948,8 +3948,8 @@ async function runQuestPractice() {
 
   for (let attempt = 1; attempt <= cfg.maxAttempts; attempt++) {
     drawQuestMessage([
-      attempt === 1 ? 'Short practice — get ready' : `Practice again (attempt ${attempt})`,
-      'The tone will be clearly audible. Press Y = yes, N = no.'
+      attempt === 1 ? 'Practice — get ready' : `Practice again (attempt ${attempt})`,
+      'You will hear a short tone in noise. Press Y if you heard it, N if not.'
     ]);
     await sleepWithQuestAbort(1500);
 
@@ -4018,8 +4018,8 @@ async function runQuestProcedure() {
   initAudio();
   questRunning = true;
   showScreen(null);
-  drawQuestMessage(['Initializing QUEST…', `pThreshold = ${QUEST_CFG.quest.pThreshold.toFixed(4)}`]);
-  await sleepWithQuestAbort(600);
+  drawQuestMessage(['Get ready…', 'The experiment is about to begin.']);
+  await sleepWithQuestAbort(1500);
 
   attachQuestEscapeHandler();
 

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <title>The PRIOR Game — Phone</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript" src="https://s3.amazonaws.com/mcd-headphone-check/v1.0/src/HeadphoneCheck.min.js"></script>
@@ -3224,9 +3225,22 @@ function scrollAWSBasicToTopSoon(){
   });
 }
 
+function resetZoom() {
+  // Temporarily lock scale to 1 to snap the browser back to default zoom,
+  // then immediately restore user-scalable so participants can still zoom freely.
+  const vp = document.querySelector('meta[name="viewport"]');
+  if (!vp) return;
+  const original = vp.getAttribute('content');
+  vp.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+  requestAnimationFrame(() => {
+    vp.setAttribute('content', original);
+  });
+}
+
 function showScreen(name) {
   currentScreenName = name || null;
   Object.values(screenEls).forEach(s => s.classList.remove('active'));
+  resetZoom();
   if (name) {
     screenEls[name].classList.add('active');
     ol.style.display = 'flex';
@@ -4977,8 +4991,8 @@ async function runQuestPractice() {
 
   for (let attempt = 1; attempt <= cfg.maxAttempts; attempt++) {
     drawQuestMessage([
-      attempt === 1 ? 'Short practice — get ready' : `Practice again (attempt ${attempt})`,
-      'The tone will be clearly audible. Tap YES or NO.'
+      attempt === 1 ? 'Practice — get ready' : `Practice again (attempt ${attempt})`,
+      'You will hear a short tone in noise. Tap YES if you heard it, NO if not.'
     ]);
     await sleepWithQuestAbort(1500);
 
@@ -5049,8 +5063,8 @@ async function runQuestProcedure() {
   questInterruptionReason = '';
   startQuestAudioWatchdog();
   showScreen(null);
-  drawQuestMessage(['Initializing QUEST…', `pThreshold = ${QUEST_CFG.quest.pThreshold.toFixed(4)}`]);
-  await sleepWithQuestAbort(600);
+  drawQuestMessage(['Get ready…', 'The experiment is about to begin.']);
+  await sleepWithQuestAbort(1500);
 
   attachQuestEscapeHandler();
 
